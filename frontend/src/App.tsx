@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Editor from './components/Editor';
 import OutputArea from './components/OutputArea';
-import { Play, Monitor, Download } from 'lucide-react';
+import { Monitor, Download } from 'lucide-react';
 import axios from 'axios';
 
 const LANGUAGES = [

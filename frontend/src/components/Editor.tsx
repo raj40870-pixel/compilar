@@ -21,7 +21,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
     }
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1024;
   const [menu, setMenu] = useState<{ x: number, y: number, isMonaco?: boolean } | null>(null);
   const touchTimer = useRef<any>(null);
 
@@ -56,15 +56,18 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       (monaco as any).__completionsRegistered = true;
     }
 
-    // Block default Ctrl+F2 and Ctrl+F12
+    // Block default Ctrl+F2, Ctrl+F12 and F12
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F2, () => {});
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, () => {});
+    editor.addCommand(monaco.KeyCode.F12, () => {}); // Block plain F12
 
     // Enhance cursor
     editor.updateOptions({
       cursorSmoothCaretAnimation: 'on',
       cursorBlinking: 'smooth',
       cursorStyle: 'line',
+      cursorWidth: 3,
+      caretColor: '#ff00ff',
       contextmenu: false, // Disable default context menu
     });
 
@@ -211,7 +214,21 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
   useEffect(() => {
     const handleClick = () => setMenu(null);
     window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
+    return () => {
+      window.removeEventListener('click', handleClick);
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, []);
+
+  const handleGlobalKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'F12') {
+      e.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
   if (isMobile) {

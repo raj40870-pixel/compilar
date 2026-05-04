@@ -220,6 +220,12 @@ a {
 }
 
 /* Cursor/Selection Feature Styles */
+.monaco-editor .cursor {
+  background-color: #ff00ff !important;
+  border-color: #ff00ff !important;
+  width: 3px !important;
+}
+
 ::selection {
   background: rgba(255, 0, 255, 0.3) !important;
   color: inherit;

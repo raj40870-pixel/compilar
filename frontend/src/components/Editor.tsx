@@ -54,17 +54,6 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
 
     // Focus the editor
     editor.focus();
-
-    // Add resize listener for portrait/landscape changes
-    const resizeHandler = () => {
-      editor.layout();
-    };
-    window.addEventListener('resize', resizeHandler);
-    
-    // Clean up on unmount
-    return () => {
-      window.removeEventListener('resize', resizeHandler);
-    };
   };
 
   return (

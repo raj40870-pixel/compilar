@@ -37,7 +37,7 @@ function App() {
     setError('');
     setExecutionTime(undefined);
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1024) {
       setActiveTab('output');
     }
 

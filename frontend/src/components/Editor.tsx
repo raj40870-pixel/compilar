@@ -88,7 +88,6 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
             showIcons: true,
             snippetsPreventQuickSuggestions: false,
             filterGraceful: true,
-            shareSuggestionsWithOtherEditors: true,
           }
         }}
       />

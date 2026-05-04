@@ -23,7 +23,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
   const [menu, setMenu] = useState<{ x: number, y: number } | null>(null);
-  const touchTimer = useRef<NodeJS.Timeout | null>(null);
+  const touchTimer = useRef<any>(null);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Register completions for each language defined in completionData

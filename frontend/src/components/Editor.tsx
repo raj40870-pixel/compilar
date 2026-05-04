@@ -56,6 +56,18 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       (monaco as any).__completionsRegistered = true;
     }
 
+    // Block default Ctrl+F2
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F2, () => {
+      // Do nothing, blocking the default "Change All Occurrences"
+    });
+
+    // Enhance cursor
+    editor.updateOptions({
+      cursorSmoothCaretAnimation: 'on',
+      cursorBlinking: 'smooth',
+      cursorStyle: 'line',
+    });
+
     editor.focus();
   };
 
@@ -113,6 +125,62 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       const newLines = lines.filter((_, i) => i !== currentLineIndex);
       onChange(newLines.join('\n'));
     }
+  };
+
+  const insertText = (text: string) => {
+    const textarea = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const newCode = code.substring(0, start) + text + code.substring(end);
+    onChange(newCode);
+
+    // Set cursor position after the inserted text
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + text.length, start + text.length);
+    }, 0);
+  };
+
+  const moveCursor = (dir: 'up' | 'down' | 'left' | 'right') => {
+    const textarea = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const lines = code.split('\n');
+    
+    if (dir === 'left') {
+      textarea.setSelectionRange(Math.max(0, start - 1), Math.max(0, start - 1));
+    } else if (dir === 'right') {
+      textarea.setSelectionRange(Math.min(code.length, start + 1), Math.min(code.length, start + 1));
+    } else if (dir === 'up' || dir === 'down') {
+      // Logic for moving up/down in textarea is tricky, 
+      // but we can use the moveLine logic or similar.
+      // For now, let's just do a simple line-based jump.
+      let currentLine = 0;
+      let currentCharInLine = 0;
+      let count = 0;
+      for (let i = 0; i < lines.length; i++) {
+        if (count + lines[i].length >= start) {
+          currentLine = i;
+          currentCharInLine = start - count;
+          break;
+        }
+        count += lines[i].length + 1;
+      }
+
+      const targetLine = dir === 'up' ? currentLine - 1 : currentLine + 1;
+      if (targetLine >= 0 && targetLine < lines.length) {
+        let newPos = 0;
+        for (let i = 0; i < targetLine; i++) {
+          newPos += lines[i].length + 1;
+        }
+        newPos += Math.min(currentCharInLine, lines[targetLine].length);
+        textarea.setSelectionRange(newPos, newPos);
+      }
+    }
+    textarea.focus();
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -179,31 +247,44 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
         </div>
 
         {menu && (
-          <div style={{
+          <div className="mobile-context-menu" style={{
             position: 'fixed',
-            top: menu.y,
-            left: menu.x,
-            background: 'var(--bg-tertiary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '8px',
-            padding: '4px',
+            top: Math.max(80, menu.y - 60),
+            left: Math.max(10, Math.min(window.innerWidth - 300, menu.x - 150)),
+            background: '#2d2d33',
+            borderRadius: '100px',
+            padding: '4px 16px',
             zIndex: 10000,
-            boxShadow: 'var(--shadow-md)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             display: 'flex',
-            flexDirection: 'column',
-            minWidth: '120px'
+            gap: '8px',
+            alignItems: 'center'
           }}>
             {[
+              { label: 'Select all', action: () => {
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                tx?.select();
+              }},
+              { label: 'Cut', action: () => {
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                if (tx) {
+                  const start = tx.selectionStart;
+                  const end = tx.selectionEnd;
+                  const text = code.substring(start, end);
+                  navigator.clipboard.writeText(text);
+                  onChange(code.substring(0, start) + code.substring(end));
+                }
+              }},
               { label: 'Copy', action: () => {
-                navigator.clipboard.writeText(code);
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                if (tx) {
+                  navigator.clipboard.writeText(code.substring(tx.selectionStart, tx.selectionEnd) || code);
+                }
               }},
               { label: 'Paste', action: async () => {
                 const text = await navigator.clipboard.readText();
-                onChange(code + text);
+                insertText(text);
               }},
-              { label: 'Move Up ↑', action: () => moveLine(-1) },
-              { label: 'Move Down ↓', action: () => moveLine(1) },
-              { label: 'Delete Line', action: () => deleteLine() }
             ].map(item => (
               <button 
                 key={item.label}
@@ -214,10 +295,9 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
                 }}
                 style={{ 
                   padding: '8px 12px', 
-                  color: 'var(--text-primary)', 
-                  textAlign: 'left', 
+                  color: '#fff', 
                   fontSize: '0.875rem',
-                  borderRadius: '4px'
+                  fontWeight: '500'
                 }}
               >
                 {item.label}
@@ -227,6 +307,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
         )}
 
         <textarea
+          id="mobile-editor-textarea"
           value={code}
           onChange={(e) => onChange(e.target.value)}
           onTouchStart={handleTouchStart}
@@ -247,9 +328,43 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
             lineHeight: '1.6',
             outline: 'none',
             resize: 'none',
-            fontFamily: "var(--font-mono)"
+            fontFamily: "var(--font-mono)",
+            caretColor: '#ff00ff'
           }}
         />
+
+        {/* Mobile Cursor Toolbar */}
+        <div className="mobile-symbol-toolbar">
+          {[
+            { label: 'Tab', value: '    ' },
+            { label: '{', value: '{' },
+            { label: '}', value: '}' },
+            { label: '(', value: '(' },
+            { label: ')', value: ')' },
+            { label: '"', value: '"' },
+            { label: "'", value: "'" },
+            { label: ';', value: ';' },
+            { label: ',', value: ',' },
+            { label: ':', value: ':' },
+            { label: '↑', action: () => moveCursor('up') },
+            { label: '↓', action: () => moveCursor('down') },
+            { label: '←', action: () => moveCursor('left') },
+            { label: '→', action: () => moveCursor('right') },
+          ].map((item, idx) => (
+            <button 
+              key={idx}
+              onClick={() => {
+                if (item.action) {
+                  item.action();
+                } else if (item.value) {
+                  insertText(item.value);
+                }
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
     );
   }

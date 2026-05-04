@@ -218,3 +218,47 @@ a {
     display: none !important;
   }
 }
+
+/* Cursor/Selection Feature Styles */
+::selection {
+  background: rgba(255, 0, 255, 0.3) !important;
+  color: inherit;
+}
+
+.mobile-symbol-toolbar {
+  display: flex;
+  overflow-x: auto;
+  background: #1e1e22;
+  border-top: 1px solid var(--border-color);
+  padding: 4px;
+  gap: 4px;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-symbol-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-symbol-toolbar button {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2d2d33;
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.mobile-symbol-toolbar button:active {
+  background: var(--accent-primary);
+  transform: scale(0.95);
+}
+
+.mobile-context-menu button:active {
+  color: var(--accent-primary);
+}

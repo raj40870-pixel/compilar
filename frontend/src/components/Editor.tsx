@@ -26,7 +26,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
     if (!(monaco as any).__completionsRegistered) {
       Object.entries(LANGUAGE_COMPLETIONS).forEach(([lang, items]) => {
         monaco.languages.registerCompletionItemProvider(lang, {
-          provideCompletionItems: (model, position) => {
+          provideCompletionItems: (model: any, position: any) => {
             const word = model.getWordUntilPosition(position);
             const range = {
               startLineNumber: position.lineNumber,

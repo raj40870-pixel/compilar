@@ -1,5 +1,5 @@
 node_modules/
-dist/
+# dist/ removed to force upload
 build/
 .env
 .env.local

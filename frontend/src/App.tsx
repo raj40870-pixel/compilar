@@ -159,11 +159,7 @@ function App() {
 
       {/* Mobile Tabs */}
       <div className="mobile-tabs glass" style={{ 
-        display: 'none', 
-        height: '48px', 
-        alignItems: 'center', 
-        justifyContent: 'space-around',
-        borderBottom: '1px solid var(--border-color)',
+        display: 'none',
         flexShrink: 0
       }}>
         <button 

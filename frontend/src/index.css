@@ -83,8 +83,7 @@ a {
 
 /* Utility classes */
 .glass {
-  background: rgba(30, 30, 34, 0.7);
-  backdrop-filter: blur(12px);
+  background: rgba(30, 30, 34, 0.95);
   border: 1px solid var(--border-color);
 }
 

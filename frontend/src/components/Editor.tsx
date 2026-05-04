@@ -69,24 +69,16 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
           fontSize: 14,
           fontFamily: "'JetBrains Mono', monospace",
           minimap: { enabled: false },
-          automaticLayout: true,
+          automaticLayout: false,
           scrollBeyondLastLine: false,
           lineNumbers: 'on',
           padding: { top: 16, bottom: 16 },
-          suggestOnTriggerCharacters: true,
-          quickSuggestions: {
-            other: true,
-            comments: false,
-            strings: true,
-          },
-          quickSuggestionsDelay: 10,
-          wordBasedSuggestions: "allDocuments",
-          parameterHints: {
-            enabled: true,
-          },
+          suggestOnTriggerCharacters: false,
+          quickSuggestions: false,
+          wordBasedSuggestions: "off",
           suggest: {
-            showIcons: true,
-            snippetsPreventQuickSuggestions: false,
+            showIcons: false,
+            snippetsPreventQuickSuggestions: true,
             filterGraceful: true,
           }
         }}

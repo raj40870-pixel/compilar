@@ -1,5 +1,6 @@
 {
-  "name": "compler-bro",
+  "name": "compilar",
+  "homepage": "https://compilar.vercel.app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

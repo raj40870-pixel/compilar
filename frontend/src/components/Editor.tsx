@@ -22,7 +22,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
   };
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const [menu, setMenu] = useState<{ x: number, y: number } | null>(null);
+  const [menu, setMenu] = useState<{ x: number, y: number, isMonaco?: boolean } | null>(null);
   const touchTimer = useRef<any>(null);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
@@ -56,18 +56,30 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       (monaco as any).__completionsRegistered = true;
     }
 
-    // Block default Ctrl+F2
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F2, () => {
-      // Do nothing, blocking the default "Change All Occurrences"
-    });
+    // Block default Ctrl+F2 and Ctrl+F12
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F2, () => {});
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.F12, () => {});
 
     // Enhance cursor
     editor.updateOptions({
       cursorSmoothCaretAnimation: 'on',
       cursorBlinking: 'smooth',
       cursorStyle: 'line',
+      contextmenu: false, // Disable default context menu
     });
 
+    // Handle custom context menu
+    editor.onContextMenu((e) => {
+      e.event.preventDefault();
+      e.event.stopPropagation();
+      setMenu({ 
+        x: e.event.posx, 
+        y: e.event.posy,
+        isMonaco: true
+      });
+    });
+
+    (window as any).monacoEditor = editor;
     editor.focus();
   };
 
@@ -155,9 +167,6 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
     } else if (dir === 'right') {
       textarea.setSelectionRange(Math.min(code.length, start + 1), Math.min(code.length, start + 1));
     } else if (dir === 'up' || dir === 'down') {
-      // Logic for moving up/down in textarea is tricky, 
-      // but we can use the moveLine logic or similar.
-      // For now, let's just do a simple line-based jump.
       let currentLine = 0;
       let currentCharInLine = 0;
       let count = 0;
@@ -246,94 +255,45 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
           </button>
         </div>
 
-        {menu && (
-          <div className="mobile-context-menu" style={{
-            position: 'fixed',
-            top: Math.max(80, menu.y - 60),
-            left: Math.max(10, Math.min(window.innerWidth - 300, menu.x - 150)),
-            background: '#2d2d33',
-            borderRadius: '100px',
-            padding: '4px 16px',
-            zIndex: 10000,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center'
+        <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <textarea
+            id="mobile-editor-textarea"
+            value={code}
+            onChange={(e) => onChange(e.target.value)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            spellCheck={false}
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
+            className="mono"
+            style={{
+              flex: 1,
+              width: '100%',
+              background: 'var(--bg-primary)',
+              color: 'var(--text-primary)',
+              border: 'none',
+              padding: '16px',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              outline: 'none',
+              resize: 'none',
+              fontFamily: "var(--font-mono)",
+              caretColor: '#ff00ff'
+            }}
+          />
+          <div className="selection-handles" style={{ 
+            position: 'absolute', 
+            top: 0, left: 0, right: 0, bottom: 0, 
+            pointerEvents: 'none', overflow: 'hidden'
           }}>
-            {[
-              { label: 'Select all', action: () => {
-                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
-                tx?.select();
-              }},
-              { label: 'Cut', action: () => {
-                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
-                if (tx) {
-                  const start = tx.selectionStart;
-                  const end = tx.selectionEnd;
-                  const text = code.substring(start, end);
-                  navigator.clipboard.writeText(text);
-                  onChange(code.substring(0, start) + code.substring(end));
-                }
-              }},
-              { label: 'Copy', action: () => {
-                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
-                if (tx) {
-                  navigator.clipboard.writeText(code.substring(tx.selectionStart, tx.selectionEnd) || code);
-                }
-              }},
-              { label: 'Paste', action: async () => {
-                const text = await navigator.clipboard.readText();
-                insertText(text);
-              }},
-            ].map(item => (
-              <button 
-                key={item.label}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  item.action();
-                  setMenu(null);
-                }}
-                style={{ 
-                  padding: '8px 12px', 
-                  color: '#fff', 
-                  fontSize: '0.875rem',
-                  fontWeight: '500'
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+            <div className="handle start-handle" style={{ 
+              position: 'absolute', width: '12px', height: '12px', 
+              background: '#ff00ff', borderRadius: '50%', display: 'none'
+            }} />
           </div>
-        )}
+        </div>
 
-        <textarea
-          id="mobile-editor-textarea"
-          value={code}
-          onChange={(e) => onChange(e.target.value)}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          spellCheck={false}
-          autoCapitalize="none"
-          autoComplete="off"
-          autoCorrect="off"
-          className="mono"
-          style={{
-            flex: 1,
-            width: '100%',
-            background: 'var(--bg-primary)',
-            color: 'var(--text-primary)',
-            border: 'none',
-            padding: '16px',
-            fontSize: '14px',
-            lineHeight: '1.6',
-            outline: 'none',
-            resize: 'none',
-            fontFamily: "var(--font-mono)",
-            caretColor: '#ff00ff'
-          }}
-        />
-
-        {/* Mobile Cursor Toolbar */}
         <div className="mobile-symbol-toolbar">
           {[
             { label: 'Tab', value: '    ' },
@@ -370,7 +330,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
   }
 
   return (
-    <div className="editor-container" style={{ height: '100%', width: '100%' }}>
+    <div className="editor-container" style={{ height: '100%', width: '100%', position: 'relative' }}>
       <MonacoEditor
         height="100%"
         language={getMonacoLanguage(language)}
@@ -401,6 +361,104 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
           }
         }}
       />
+      
+      {menu && (
+        <div className="custom-context-menu" style={{
+          position: 'fixed',
+          top: Math.max(10, menu.y - 60),
+          left: Math.max(10, Math.min(window.innerWidth - 300, menu.x - 150)),
+          background: '#2d2d33',
+          borderRadius: '100px',
+          padding: '4px 16px',
+          zIndex: 10000,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center'
+        }}>
+          {[
+            { label: 'Select all', action: () => {
+              if (menu.isMonaco) {
+                const editor = (window as any).monacoEditor;
+                if (editor) {
+                  editor.setSelection(editor.getModel().getFullModelRange());
+                  editor.focus();
+                }
+              } else {
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                tx?.select();
+              }
+            }},
+            { label: 'Cut', action: () => {
+              if (menu.isMonaco) {
+                const editor = (window as any).monacoEditor;
+                if (editor) {
+                  const selection = editor.getSelection();
+                  const text = editor.getModel().getValueInRange(selection);
+                  navigator.clipboard.writeText(text);
+                  editor.executeEdits('cut', [{ range: selection, text: '' }]);
+                  editor.focus();
+                }
+              } else {
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                if (tx) {
+                  const start = tx.selectionStart;
+                  const end = tx.selectionEnd;
+                  const text = code.substring(start, end);
+                  navigator.clipboard.writeText(text);
+                  onChange(code.substring(0, start) + code.substring(end));
+                }
+              }
+            }},
+            { label: 'Copy', action: () => {
+              if (menu.isMonaco) {
+                const editor = (window as any).monacoEditor;
+                if (editor) {
+                  const selection = editor.getSelection();
+                  const text = editor.getModel().getValueInRange(selection);
+                  navigator.clipboard.writeText(text || editor.getValue());
+                  editor.focus();
+                }
+              } else {
+                const tx = document.getElementById('mobile-editor-textarea') as HTMLTextAreaElement;
+                if (tx) {
+                  navigator.clipboard.writeText(code.substring(tx.selectionStart, tx.selectionEnd) || code);
+                }
+              }
+            }},
+            { label: 'Paste', action: async () => {
+              const text = await navigator.clipboard.readText();
+              if (menu.isMonaco) {
+                const editor = (window as any).monacoEditor;
+                if (editor) {
+                  const selection = editor.getSelection();
+                  editor.executeEdits('paste', [{ range: selection, text: text, forceMoveMarkers: true }]);
+                  editor.focus();
+                }
+              } else {
+                insertText(text);
+              }
+            }},
+          ].map(item => (
+            <button 
+              key={item.label}
+              onClick={(e) => {
+                e.stopPropagation();
+                item.action();
+                setMenu(null);
+              }}
+              style={{ 
+                padding: '8px 12px', 
+                color: '#fff', 
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

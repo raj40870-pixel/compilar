@@ -29,6 +29,7 @@ function App() {
   const [executionTime, setExecutionTime] = useState<string | undefined>();
   const [stdin, setStdin] = useState('');
   const [activeTab, setActiveTab] = useState<'editor' | 'input' | 'output'>('editor');
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleRun = async () => {
     setIsPending(true);
@@ -41,7 +42,7 @@ function App() {
     }
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com';
       const response = await axios.post(`${backendUrl}/api/run`, {
         language: language.id,
         code,
@@ -92,70 +93,133 @@ function App() {
   return (
     <div className="app-container">
       {/* Navbar */}
-      <nav className="navbar glass">
-        <div style={{ display: 'none' }}></div>
+      <nav className="navbar glass" style={{ 
+        height: '70px', 
+        padding: '0 16px',
+        background: 'var(--bg-secondary)',
+        borderBottom: '1px solid var(--border-color)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div className="nav-left" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#fff', margin: 0 }}>
+            {language.id === 'cpp' ? 'Coding C++' : language.id === 'c' ? 'Coding C' : language.name}
+          </h1>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            {isPending ? 'Executing...' : output || error ? 'Execution finished' : 'Nothing changed'}
+          </span>
+        </div>
 
-        <div className="nav-center" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-tertiary)', padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Language:</span>
-            <select 
-              value={language.id} 
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              style={{ 
-                background: 'transparent', 
-                color: 'var(--text-primary)', 
-                border: 'none', 
-                outline: 'none',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              {LANGUAGES.map(lang => (
-                <option key={lang.id} value={lang.id} style={{ background: 'var(--bg-secondary)' }}>{lang.name}</option>
-              ))}
-            </select>
-          </div>
-
+        <div className="nav-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button 
             onClick={handleRun}
             disabled={isPending}
             style={{ 
-              background: 'transparent', 
-              color: isPending ? 'var(--text-muted)' : 'white', 
-              padding: '4px 8px', 
-              borderRadius: '0',
+              color: isPending ? 'var(--text-muted)' : '#fff', 
               fontWeight: 700,
-              fontSize: '0.875rem',
+              fontSize: '0.9rem',
               letterSpacing: '1px',
-              opacity: isPending ? 0.7 : 1,
-              border: 'none',
-              cursor: 'pointer'
+              padding: '8px 12px',
+              borderRadius: '4px',
+              background: isPending ? 'rgba(255,255,255,0.05)' : 'transparent'
             }}
           >
-            {isPending ? '...' : 'RUN'}
+            RUN
           </button>
-
+          
           <button 
-            onClick={handleDownload}
-            title="Download Code"
-            className="flex-center" 
+            onClick={() => setShowMenu(true)}
             style={{ 
-              background: 'var(--bg-tertiary)', 
-              color: 'var(--text-primary)', 
-              padding: '8px 12px', 
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-              fontWeight: 500,
-              gap: '6px'
+              color: '#fff', 
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              letterSpacing: '1px',
+              padding: '8px 12px'
             }}
           >
-            <Download size={16} />
-            <span className="desktop-only">Download</span>
+            MENU
           </button>
         </div>
-
-        <div style={{ display: 'none' }}></div>
       </nav>
+
+      {/* Side Menu Drawer */}
+      {showMenu && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 20000,
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }} onClick={() => setShowMenu(false)}>
+          <div style={{
+            width: '280px',
+            height: '100%',
+            background: 'var(--bg-secondary)',
+            boxShadow: '-8px 0 32px rgba(0,0,0,0.5)',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0 }}>Menu</h2>
+              <button onClick={() => setShowMenu(false)} style={{ color: 'var(--text-secondary)' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Select Language</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.id}
+                    onClick={() => {
+                      handleLanguageChange(lang.id);
+                      setShowMenu(false);
+                    }}
+                    style={{
+                      padding: '12px',
+                      background: language.id === lang.id ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
+                      color: '#fff',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginTop: 'auto' }}>
+              <button 
+                onClick={handleDownload}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--bg-tertiary)',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 600
+                }}
+              >
+                <Download size={18} /> Download Code
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Tabs */}
       <div className="mobile-tabs glass" style={{ 

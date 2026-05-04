@@ -119,20 +119,20 @@ function App() {
           <button 
             onClick={handleRun}
             disabled={isPending}
-            className="flex-center" 
             style={{ 
-              background: isPending ? 'var(--bg-tertiary)' : 'var(--accent-primary)', 
-              color: 'white', 
-              padding: '8px 20px', 
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 600,
-              gap: '8px',
+              background: 'transparent', 
+              color: isPending ? 'var(--text-muted)' : 'white', 
+              padding: '4px 8px', 
+              borderRadius: '0',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              letterSpacing: '1px',
               opacity: isPending ? 0.7 : 1,
-              boxShadow: isPending ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)'
+              border: 'none',
+              cursor: 'pointer'
             }}
           >
-            <Play size={16} fill="white" />
-            {isPending ? 'Running...' : 'Run Code'}
+            {isPending ? '...' : 'RUN'}
           </button>
 
           <button 

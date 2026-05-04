@@ -20,9 +20,10 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
     }
   };
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Register completions for each language defined in completionData
-    // We use a flag on the monaco instance to ensure we only register once
     if (!(monaco as any).__completionsRegistered) {
       Object.entries(LANGUAGE_COMPLETIONS).forEach(([lang, items]) => {
         monaco.languages.registerCompletionItemProvider(lang, {
@@ -52,9 +53,37 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       (monaco as any).__completionsRegistered = true;
     }
 
-    // Focus the editor
     editor.focus();
   };
+
+  if (isMobile) {
+    return (
+      <div className="editor-container" style={{ height: '100%', width: '100%', padding: '0' }}>
+        <textarea
+          value={code}
+          onChange={(e) => onChange(e.target.value)}
+          spellCheck={false}
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
+          className="mono"
+          style={{
+            width: '100%',
+            height: '100%',
+            background: 'var(--bg-primary)',
+            color: 'var(--text-primary)',
+            border: 'none',
+            padding: '16px',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            outline: 'none',
+            resize: 'none',
+            fontFamily: "var(--font-mono)"
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="editor-container" style={{ height: '100%', width: '100%' }}>
@@ -69,16 +98,21 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
           fontSize: 14,
           fontFamily: "'JetBrains Mono', monospace",
           minimap: { enabled: false },
-          automaticLayout: false,
+          automaticLayout: true,
           scrollBeyondLastLine: false,
           lineNumbers: 'on',
           padding: { top: 16, bottom: 16 },
-          suggestOnTriggerCharacters: false,
-          quickSuggestions: false,
-          wordBasedSuggestions: "off",
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: true,
+          },
+          quickSuggestionsDelay: 10,
+          wordBasedSuggestions: "allDocuments",
           suggest: {
-            showIcons: false,
-            snippetsPreventQuickSuggestions: true,
+            showIcons: true,
+            snippetsPreventQuickSuggestions: false,
             filterGraceful: true,
           }
         }}

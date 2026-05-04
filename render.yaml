@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: compilar-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8080

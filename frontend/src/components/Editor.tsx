@@ -24,6 +24,7 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 1024;
   const [menu, setMenu] = useState<{ x: number, y: number, isMonaco?: boolean } | null>(null);
   const touchTimer = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Register completions for each language defined in completionData
@@ -67,7 +68,6 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
       cursorBlinking: 'smooth',
       cursorStyle: 'line',
       cursorWidth: 3,
-      caretColor: '#ff00ff',
       contextmenu: false, // Disable default context menu
     });
 
@@ -201,8 +201,17 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
     const y = touch.clientY;
     
     touchTimer.current = setTimeout(() => {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
       setMenu({ x, y });
-    }, 500);
+    }, 600);
+  };
+
+  const handleTouchMove = () => {
+    if (touchTimer.current) {
+      clearTimeout(touchTimer.current);
+    }
   };
 
   const handleTouchEnd = () => {
@@ -227,13 +236,35 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
   };
 
   useEffect(() => {
+    // Block native context menu on the entire container to ensure mobile native menu is suppressed
+    const handler = (e: MouseEvent | TouchEvent) => {
+      // If we are on mobile, we always want to prevent default context menu
+      // because we have our own long-press logic
+      if (isMobile) {
+        e.preventDefault();
+      }
+    };
+    
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('contextmenu', handler);
+    }
+    
+    return () => {
+      if (container) {
+        container.removeEventListener('contextmenu', handler);
+      }
+    };
+  }, [isMobile]);
+
+  useEffect(() => {
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
   if (isMobile) {
     return (
-      <div className="editor-container" style={{ height: '100%', width: '100%', padding: '0', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <div ref={containerRef} className="editor-container" style={{ height: '100%', width: '100%', padding: '0', display: 'flex', flexDirection: 'column', position: 'relative' }}>
         <div className="mobile-editor-toolbar" style={{ 
           display: 'flex', 
           gap: '8px', 
@@ -278,7 +309,9 @@ const Editor = ({ language, code, onChange, theme = 'vs-dark' }: EditorProps) =>
             value={code}
             onChange={(e) => onChange(e.target.value)}
             onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onContextMenu={(e) => e.preventDefault()}
             spellCheck={false}
             autoCapitalize="none"
             autoComplete="off"

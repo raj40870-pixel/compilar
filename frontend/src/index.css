@@ -110,14 +110,75 @@ a {
 }
 
 .navbar {
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 16px;
   justify-content: space-between;
-  z-index: 10;
+  z-index: 100;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  background: var(--bg-secondary);
+  gap: 16px;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-select {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.lang-select:focus {
+  border-color: var(--accent-primary);
+}
+
+.btn-run {
+  background: var(--accent-primary);
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.btn-run:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
+}
+
+.btn-run:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-download {
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.btn-download:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .main-content {
@@ -132,7 +193,6 @@ a {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border-color);
   min-height: 0;
   overflow: hidden;
 }
@@ -219,52 +279,17 @@ a {
   }
 }
 
-/* Cursor/Selection Feature Styles */
+/* Selection Feature Styles */
 .monaco-editor .cursor {
-  background-color: #ff00ff !important;
-  border-color: #ff00ff !important;
-  width: 3px !important;
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
 }
 
-::selection {
-  background: rgba(255, 0, 255, 0.3) !important;
-  color: inherit;
+.custom-context-menu {
+  animation: fadeIn 0.15s ease-out;
 }
 
-.mobile-symbol-toolbar {
-  display: flex;
-  overflow-x: auto;
-  background: #1e1e22;
-  border-top: 1px solid var(--border-color);
-  padding: 4px;
-  gap: 4px;
-  flex-shrink: 0;
-  -webkit-overflow-scrolling: touch;
-}
-
-.mobile-symbol-toolbar::-webkit-scrollbar {
-  display: none;
-}
-
-.mobile-symbol-toolbar button {
-  min-width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #2d2d33;
-  color: var(--text-primary);
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.mobile-symbol-toolbar button:active {
-  background: var(--accent-primary);
-  transform: scale(0.95);
-}
-
-.mobile-context-menu button:active {
-  color: var(--accent-primary);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

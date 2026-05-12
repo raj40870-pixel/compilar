@@ -41,9 +41,9 @@ function App() {
     }
 
     try {
-      const backendUrl = import.meta.env.MODE === 'development'
+      const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:8080'
-        : import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com';
+        : (import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com');
       const response = await axios.post(`${backendUrl}/api/run`, {
         language: language.id,
         code,
@@ -54,7 +54,11 @@ function App() {
       setIsPending(false);
     } catch (err: any) {
       console.error('Run request failed:', err);
-      setError(err.response?.data?.error || 'Failed to connect to server. Make sure the backend is running.');
+      const errorMessage = err.response?.data?.error || 
+        (err.code === 'ERR_NETWORK' 
+          ? 'Cannot reach the backend server. Please make sure the backend is running (run "npm run dev" in the root directory).' 
+          : 'An unexpected error occurred while connecting to the server.');
+      setError(errorMessage);
       setIsPending(false);
     }
   };

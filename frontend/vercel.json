@@ -1,5 +1,4 @@
 {
-  "name": "compilar",
   "alias": ["compilar.vercel.app"],
   "headers": [
     {

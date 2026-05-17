@@ -94,10 +94,9 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
     if (sel && !sel.isEmpty()) {
       const endPx = monacoPositionToPixel(editor, { lineNumber: sel.endLineNumber, column: sel.endColumn });
       if (endPx) {
-        // Show below-right of the selection end caret
-        const x = Math.max(10, Math.min(window.innerWidth - 240, endPx.x - 20));
-        const y = Math.max(60, endPx.y + 35);
-        setMenu({ visible: true, y, x, hasSelection: true });
+        // Show below the selection end caret, safe-guarded from overflowing off-screen
+        const y = Math.max(60, Math.min(window.innerHeight - 100, endPx.y + 35));
+        setMenu({ visible: true, y, x: 0, hasSelection: true });
       }
     } else {
       closeMenu();
@@ -470,8 +469,6 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
           className="editor-context-menu"
           style={{
             top: menu.y,
-            left: menu.x,
-            transform: 'none', // Align directly to target coordinate
             pointerEvents: isDraggingActive ? 'none' : 'auto'
           }}
           onPointerDown={(e) => e.stopPropagation()}

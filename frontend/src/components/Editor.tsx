@@ -25,6 +25,7 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
   const [isDraggingActive, setIsDraggingActive] = useState(false);
 
   const containerRef  = useRef<HTMLDivElement>(null);
+  const pressTimerRef = useRef<any>(null);
   const draggingHandle = useRef<'start' | 'end' | null>(null);
   const selChangeDisposer = useRef<any>(null);
 
@@ -87,6 +88,8 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
 
   // ── Show and position menu popup relative to selection end ───────
   const showPopupMenu = (editor: any) => {
+    if (!isMobileDevice()) { closeMenu(); return; } // Strict mobile check
+
     const sel = editor.getSelection();
     if (sel && !sel.isEmpty()) {
       const endPx = monacoPositionToPixel(editor, { lineNumber: sel.endLineNumber, column: sel.endColumn });
@@ -208,16 +211,77 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
       }
     });
 
-    // ── Mobile trigger on pointerup ────────────────────────────────
+    // ── Touch and Drag Selection via custom Long-Press detector ───
     const container = containerRef.current;
     if (!container || (container as any).__touchAdded) return;
     (container as any).__touchAdded = true;
 
+    let startX = 0, startY = 0;
+
+    const clearTimer = () => {
+      if (pressTimerRef.current) {
+        clearTimeout(pressTimerRef.current);
+        pressTimerRef.current = null;
+      }
+    };
+
+    container.addEventListener('pointerdown', (e) => {
+      if (!isMobileDevice()) return; // strict mobile check
+      if (e.pointerType === 'mouse') return;
+      if ((e.target as HTMLElement).closest?.('.sel-handle, .editor-context-menu')) return;
+      
+      startX = e.clientX;
+      startY = e.clientY;
+      clearTimer();
+
+      pressTimerRef.current = setTimeout(() => {
+        if ('vibrate' in navigator) navigator.vibrate(40);
+        
+        const pos = pixelToMonacoPosition(editor, e.clientX, e.clientY);
+        if (pos) {
+          const model = editor.getModel();
+          if (model) {
+            const word = model.getWordAtPosition(pos);
+            if (word) {
+              // Select the word under finger
+              editor.setSelection({
+                startLineNumber: pos.lineNumber, startColumn: word.startColumn,
+                endLineNumber:   pos.lineNumber, endColumn:   word.endColumn
+              });
+            } else {
+              // Select current line
+              const lineMax = model.getLineMaxColumn(pos.lineNumber);
+              if (lineMax > 1) {
+                editor.setSelection({
+                  startLineNumber: pos.lineNumber, startColumn: 1,
+                  endLineNumber:   pos.lineNumber, endColumn:   lineMax
+                });
+              } else {
+                editor.setPosition(pos);
+              }
+            }
+          }
+        }
+        // Immediately render handles, but do NOT show context menu yet
+        refreshHandles(editor);
+      }, 550);
+    }, { passive: true });
+
+    container.addEventListener('pointermove', (e) => {
+      if (!isMobileDevice()) return; // strict mobile check
+      if (Math.abs(e.clientX - startX) > 12 || Math.abs(e.clientY - startY) > 12) {
+        clearTimer();
+      }
+    }, { passive: true });
+
     container.addEventListener('pointerup', (e) => {
+      if (!isMobileDevice()) return; // strict mobile check
       if (e.pointerType === 'mouse') return;
       if ((e.target as HTMLElement).closest?.('.sel-handle, .editor-context-menu')) return;
 
-      // Small timeout to let Monaco resolve text selection state
+      clearTimer();
+
+      // Small timeout to let Monaco resolve selection state
       setTimeout(() => {
         showPopupMenu(editor);
         refreshHandles(editor);

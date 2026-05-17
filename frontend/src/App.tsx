@@ -59,21 +59,42 @@ function App() {
       setActiveTab('terminal');
     }
 
-    try {
-      const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:8080'
-        : (import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com');
+    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8080'
+      : (import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com');
 
-      const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
+    const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
 
+    let attempts = 0;
+    const maxAttempts = 15; // Up to 45 seconds total window for Render free tier to wake up
+
+    const connect = () => {
       if (wsRef.current) {
         wsRef.current.close();
+      }
+
+      attempts++;
+      if (attempts > 1) {
+        writeToTerminal(`\r\n\x1b[33mConnecting to compiler server... (Attempt ${attempts}/${maxAttempts})\x1b[0m\r\n`);
+        writeToTerminal(`\x1b[90mRender's free tier spins down after inactivity. Waking up server, please wait...\x1b[0m\r\n`);
+      } else {
+        writeToTerminal('\x1b[36mConnecting to compiler server...\x1b[0m\r\n');
       }
 
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
+      let connectionTimer = setTimeout(() => {
+        if (ws.readyState !== WebSocket.OPEN) {
+          ws.close();
+          handleFailure();
+        }
+      }, 5000); // 5s connection timeout per attempt
+
       ws.onopen = () => {
+        clearTimeout(connectionTimer);
+        // Success! Clear connecting screen and run code
+        writeToTerminal('\x1b[2J\x1b[H\x1b[32mConnected! Running code...\x1b[0m\r\n\r\n');
         ws.send(JSON.stringify({ type: 'run', language: language.id, code }));
       };
 
@@ -91,20 +112,28 @@ function App() {
         }
       };
 
+      const handleFailure = () => {
+        clearTimeout(connectionTimer);
+        if (attempts < maxAttempts) {
+          setTimeout(connect, 3000); // Retry in 3 seconds
+        } else {
+          writeToTerminal('\r\n\x1b[31mError: Connection failed. The compiler server is currently offline. Please try again in a few moments.\x1b[0m\r\n');
+          setIsPending(false);
+        }
+      };
+
       ws.onerror = () => {
-        writeToTerminal('Error: Connection failed\r\n');
-        setIsPending(false);
+        // ws.onerror will call ws.onclose, so we let ws.onclose or our timeout handle the failure
       };
 
       ws.onclose = () => {
-        setIsPending(false);
-        wsRef.current = null;
+        if (wsRef.current === ws) {
+          handleFailure();
+        }
       };
+    };
 
-    } catch (err: any) {
-      writeToTerminal(`Error: ${err.message || err}\r\n`);
-      setIsPending(false);
-    }
+    connect();
   };
 
   const handleTerminalInput = (data: string) => {

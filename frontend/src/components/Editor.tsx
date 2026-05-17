@@ -289,6 +289,25 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
     window.addEventListener('pointerup', handlePointerUp);
   };
 
+  // ── Robust Clipboard Copy Fallback ────────────────────────────────
+  const fallbackCopy = (text: string) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+    document.body.removeChild(ta);
+  };
+
   // ── Context menu actions ──────────────────────────────────────────
   const closeMenu = () => {
     setMenu({ visible: false, y: 0, x: 0, hasSelection: false });
@@ -302,6 +321,7 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
         const ed = (window as any).monacoEditor;
         if (!ed) return;
         ed.setSelection(ed.getModel().getFullModelRange());
+        ed.focus();
         closeMenu(); // immediate close
       },
     },
@@ -313,9 +333,14 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
           const sel = ed.getSelection();
           const text = ed.getModel().getValueInRange(sel);
           if (text) {
-            navigator.clipboard.writeText(text).catch(() => {});
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+            } else {
+              fallbackCopy(text);
+            }
             ed.executeEdits('cut', [{ range: sel, text: '' }]);
           }
+          ed.focus();
         }
         closeMenu(); // immediate close
       },
@@ -327,15 +352,12 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
         if (ed) {
           const sel = ed.getSelection();
           const text = ed.getModel().getValueInRange(sel) || ed.getValue();
-          navigator.clipboard.writeText(text).catch(() => {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          });
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+          } else {
+            fallbackCopy(text);
+          }
+          ed.focus();
         }
         closeMenu(); // immediate close
       },
@@ -343,14 +365,21 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
     {
       label: 'Paste',
       action: async () => {
-        try {
-          const text = await navigator.clipboard.readText();
-          const ed = (window as any).monacoEditor;
-          if (ed) {
+        const ed = (window as any).monacoEditor;
+        if (ed) {
+          try {
+            const text = await navigator.clipboard.readText();
             const sel = ed.getSelection();
             ed.executeEdits('paste', [{ range: sel, text }]);
+          } catch (_) {
+            const text = prompt("Paste text here:");
+            if (text) {
+              const sel = ed.getSelection();
+              ed.executeEdits('paste', [{ range: sel, text }]);
+            }
           }
-        } catch (_) {}
+          ed.focus();
+        }
         closeMenu(); // immediate close
       },
     },
@@ -388,8 +417,11 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
               <div key={item.label} className="ctx-item-wrap">
                 <button
                   className="ctx-btn"
-                  onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                  onPointerUp={(e)   => { e.stopPropagation(); item.action(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    item.action();
+                  }}
                 >
                   {item.label}
                 </button>

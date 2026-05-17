@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Editor from './components/Editor';
-import OutputArea from './components/OutputArea';
+import MyTerminal from './Terminal';
 import CustomSelect from './components/CustomSelect';
-import { Download, Monitor } from 'lucide-react';
-import axios from 'axios';
+import { Download, Monitor, Copy, CheckCheck, Play, Square } from 'lucide-react';
 
 const LANGUAGES = [
   { id: 'c', name: 'C', version: 'GCC 13' },
@@ -12,6 +11,8 @@ const LANGUAGES = [
   { id: 'java', name: 'Java', version: 'JDK 21' },
   { id: 'javascript', name: 'JavaScript', version: 'Node 20' },
 ];
+
+const EXT: Record<string, string> = { c:'c', cpp:'cpp', python:'py', java:'java', javascript:'js' };
 
 const DEFAULT_CODE: Record<string, string> = {
   c: '#include <stdio.h>\n\nint main() {\n    printf("Hello World\\n");\n    return 0;\n}',
@@ -24,42 +25,91 @@ const DEFAULT_CODE: Record<string, string> = {
 function App() {
   const [language, setLanguage] = useState(LANGUAGES[4]);
   const [code, setCode] = useState(DEFAULT_CODE[LANGUAGES[4].id]);
-  const [output, setOutput] = useState('');
-  const [error, setError] = useState('');
+  const [terminalOutput, setTerminalOutput] = useState<{ text: string; id: number }>({ text: '', id: 0 });
   const [isPending, setIsPending] = useState(false);
-  const [stdin, setStdin] = useState('');
-  const [activeTab, setActiveTab] = useState<'editor' | 'input' | 'output'>('editor');
+  const [activeTab, setActiveTab] = useState<'editor' | 'terminal'>('editor');
+  const [copyDone, setCopyDone] = useState(false);
 
-  const handleRun = async () => {
+  // Accumulate raw terminal text for the Copy Output button
+  const rawOutputRef = useRef<string>('');
+
+  const wsRef = useRef<WebSocket | null>(null);
+
+  const writeToTerminal = (text: string) => {
+    setTerminalOutput({ text, id: Date.now() + Math.random() });
+  };
+
+  const handleRun = () => {
+    if (isPending) {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'stop' }));
+      }
+      return;
+    }
+
     setIsPending(true);
-    setOutput('');
-    setError('');
+    rawOutputRef.current = '';
+    setCopyDone(false);
 
-    // Auto switch to output tab on mobile
+    // Clear terminal screen and move cursor home
+    writeToTerminal('\x1b[2J\x1b[H');
+
+    // Auto switch to terminal tab on mobile
     if (window.innerWidth <= 1024) {
-      setActiveTab('output');
+      setActiveTab('terminal');
     }
 
     try {
       const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:8080'
         : (import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com');
-      const response = await axios.post(`${backendUrl}/api/run`, {
-        language: language.id,
-        code,
-        input: stdin
-      });
-      setOutput(response.data.output);
-      setError(response.data.error);
-      setIsPending(false);
+
+      const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
+
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'run', language: language.id, code }));
+      };
+
+      ws.onmessage = (event) => {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'stdout') {
+          rawOutputRef.current += payload.data;
+          writeToTerminal(payload.data);
+        } else if (payload.type === 'stderr') {
+          rawOutputRef.current += payload.data;
+          writeToTerminal(payload.data);
+        } else if (payload.type === 'exit') {
+          setIsPending(false);
+          ws.close();
+        }
+      };
+
+      ws.onerror = () => {
+        writeToTerminal('Error: Connection failed\r\n');
+        setIsPending(false);
+      };
+
+      ws.onclose = () => {
+        setIsPending(false);
+        wsRef.current = null;
+      };
+
     } catch (err: any) {
-      console.error('Run request failed:', err);
-      const errorMessage = err.response?.data?.error || 
-        (err.code === 'ERR_NETWORK' 
-          ? 'Cannot reach the backend server. Please make sure the backend is running (run "npm run dev" in the root directory).' 
-          : 'An unexpected error occurred while connecting to the server.');
-      setError(errorMessage);
+      writeToTerminal(`Error: ${err.message || err}\r\n`);
       setIsPending(false);
+    }
+  };
+
+  const handleTerminalInput = (data: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'stdin', data }));
     }
   };
 
@@ -72,14 +122,7 @@ function App() {
   };
 
   const handleDownload = () => {
-    const extensions: Record<string, string> = {
-      c: 'c',
-      cpp: 'cpp',
-      python: 'py',
-      java: 'java',
-      javascript: 'js',
-    };
-    const ext = extensions[language.id] || 'txt';
+    const ext = EXT[language.id] || 'txt';
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -88,15 +131,53 @@ function App() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url); // cleanup
+    URL.revokeObjectURL(url);
   };
 
+  // ── Copy Output button ──────────────────────────────────────────
+  const handleCopyOutput = useCallback(async () => {
+    const text = rawOutputRef.current.trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (_) {
+      // Fallback for older browsers / WebView
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopyDone(true);
+    setTimeout(() => setCopyDone(false), 2000);
+  }, []);
+
+  useEffect(() => {
+    return () => { wsRef.current?.close(); };
+  }, []);
+
+  const fileLabel = `main.${EXT[language.id] || language.id}`;
+
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-root">
+      {/* ── NAVBAR ─────────────────────────────────────────────── */}
       <nav className="navbar">
+        {/* Left: RUN + language */}
         <div className="nav-group">
+          <button
+            onClick={handleRun}
+            className={`btn-run${isPending ? ' running' : ''}`}
+            id="btn-run"
+          >
+            {isPending
+              ? <><Square size={13} style={{ marginRight: 5 }} />STOP</>
+              : <><Play size={13} style={{ marginRight: 5 }} />RUN</>}
+          </button>
+
           <div className="lang-selector-group">
-            <span>Language:</span>
+            <span className="lang-label">Language:</span>
             <CustomSelect
               options={LANGUAGES}
               value={language.id}
@@ -105,54 +186,48 @@ function App() {
           </div>
         </div>
 
-        <div className="nav-group">
-          <button onClick={handleRun} disabled={isPending} className="btn-run">
-            {isPending ? 'RUNNING...' : 'RUN'}
-          </button>
-        </div>
-
-        <div className="nav-group">
+        {/* Right: Download */}
+        <div className="nav-group nav-right">
           <button onClick={handleDownload} className="btn-download" title="Download code">
-            <Download size={18} />
+            <Download size={16} />
             <span className="desktop-only">Download</span>
           </button>
         </div>
       </nav>
 
-      {/* Mobile Tabs — NO inline display:none so CSS media query controls visibility */}
+      {/* ── MOBILE TABS ────────────────────────────────────────── */}
       <div className="mobile-tabs">
         <button
           className={activeTab === 'editor' ? 'active' : ''}
           onClick={() => setActiveTab('editor')}
         >
+          <Monitor size={14} style={{ marginRight: 4 }} />
           Editor
         </button>
         <button
-          className={activeTab === 'input' ? 'active' : ''}
-          onClick={() => setActiveTab('input')}
+          className={activeTab === 'terminal' ? 'active' : ''}
+          onClick={() => setActiveTab('terminal')}
         >
-          Input
-        </button>
-        <button
-          className={activeTab === 'output' ? 'active' : ''}
-          onClick={() => setActiveTab('output')}
-        >
-          Output {error && <span style={{ color: '#ef4444' }}>●</span>}
+          <span className="tab-icon">$</span>
+          Terminal
+          {isPending && <span className="tab-running-dot" />}
         </button>
       </div>
 
+      {/* ── MAIN AREA ──────────────────────────────────────────── */}
       <main className="app-main">
-        <section className={`editor-section ${activeTab !== 'editor' ? 'mobile-hidden' : ''}`}>
+        {/* EDITOR PANE */}
+        <section className={`editor-section${activeTab !== 'editor' ? ' mobile-hidden' : ''}`}>
           <header className="section-header">
             <div className="header-label">
-              <Monitor size={14} />
-              <span>main.{language.id === 'python' ? 'py' : language.id === 'javascript' ? 'js' : language.id}</span>
+              <Monitor size={13} />
+              <span>{fileLabel}</span>
             </div>
             <div className="header-label">
               <span>{language.version}</span>
             </div>
           </header>
-          <div style={{ flex: 1, minHeight: 0 }}>
+          <div className="editor-body">
             <Editor
               language={language.id}
               code={code}
@@ -161,19 +236,28 @@ function App() {
           </div>
         </section>
 
-        <aside className={`sidebar-section ${activeTab === 'editor' ? 'mobile-hidden' : ''}`}>
-          <div className={`sidebar-group ${activeTab === 'output' ? 'mobile-hidden' : ''}`}>
-            <label className="sidebar-label">Standard Input (stdin)</label>
-            <textarea
-              value={stdin}
-              onChange={(e) => setStdin(e.target.value)}
-              placeholder="Enter input here..."
-              className="stdin-textarea"
-            />
-          </div>
-
-          <div style={{ flex: 1, minHeight: 0 }} className={activeTab === 'input' ? 'mobile-hidden' : ''}>
-            <OutputArea output={output} error={error} isPending={isPending} />
+        {/* TERMINAL PANE */}
+        <aside className={`sidebar-section${activeTab !== 'terminal' ? ' mobile-hidden' : ''}`}>
+          <div className="output-area">
+            <div className="output-header">
+              <div className="output-header-left">
+                <span className="output-header-dot" />
+                <span>Terminal</span>
+                {isPending && <span className="running-badge">RUNNING</span>}
+              </div>
+              <button
+                className={`btn-copy-output${copyDone ? ' copied' : ''}`}
+                onClick={handleCopyOutput}
+                title="Copy terminal output"
+              >
+                {copyDone
+                  ? <><CheckCheck size={14} /><span>Copied!</span></>
+                  : <><Copy size={14} /><span>Copy</span></>}
+              </button>
+            </div>
+            <div className="terminal-wrapper">
+              <MyTerminal onInput={handleTerminalInput} output={terminalOutput} isPending={isPending} />
+            </div>
           </div>
         </aside>
       </main>

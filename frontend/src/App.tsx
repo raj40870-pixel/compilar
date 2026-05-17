@@ -164,8 +164,17 @@ function App() {
     <div className="app-root">
       {/* ── NAVBAR ─────────────────────────────────────────────── */}
       <nav className="navbar">
-        {/* Left: RUN + language */}
+        {/* Left: language + RUN */}
         <div className="nav-group">
+          <div className="lang-selector-group">
+            <span className="lang-label">Language:</span>
+            <CustomSelect
+              options={LANGUAGES}
+              value={language.id}
+              onChange={handleLanguageChange}
+            />
+          </div>
+
           <button
             onClick={handleRun}
             className={`btn-run${isPending ? ' running' : ''}`}
@@ -175,15 +184,6 @@ function App() {
               ? <><Square size={13} style={{ marginRight: 5 }} />STOP</>
               : <><Play size={13} style={{ marginRight: 5 }} />RUN</>}
           </button>
-
-          <div className="lang-selector-group">
-            <span className="lang-label">Language:</span>
-            <CustomSelect
-              options={LANGUAGES}
-              value={language.id}
-              onChange={handleLanguageChange}
-            />
-          </div>
         </div>
 
         {/* Right: Download */}

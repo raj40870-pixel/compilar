@@ -1,7 +1,11 @@
 @echo off
-echo Deploying to compilar.vercel.app ...
+:: Ensure the script runs in the directory where the batch file is located
+cd /d "%~dp0"
+
+echo Deploying frontend to compilar.vercel.app ...
 cd frontend
 npx vercel --prod --yes
+
 echo.
 echo Done! Live at https://compilar.vercel.app
 pause

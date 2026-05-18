@@ -61,7 +61,7 @@ function App() {
 
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:8080'
-      : (import.meta.env.VITE_BACKEND_URL || 'https://compilar-backend.onrender.com');
+      : (import.meta.env.VITE_BACKEND_URL || 'https://compiler-backend.onrender.com');
 
     const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
 

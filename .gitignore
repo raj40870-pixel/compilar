@@ -5,3 +5,4 @@ build/
 .env.local
 .DS_Store
 test_execution_log.txt
+*.exe

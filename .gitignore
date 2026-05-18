@@ -2,7 +2,11 @@ node_modules/
 # dist/ removed to force upload
 build/
 .env
+.env.*
 .env.local
+.env.production
+.env.vercel
+.env.vercel.production
 .DS_Store
 test_execution_log.txt
 *.exe

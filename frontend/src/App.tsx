@@ -10,9 +10,19 @@ const LANGUAGES = [
   { id: 'python', name: 'Python', version: '3.12' },
   { id: 'java', name: 'Java', version: 'JDK 21' },
   { id: 'javascript', name: 'JavaScript', version: 'Node 20' },
+  { id: 'typescript', name: 'TypeScript', version: 'Node 20' },
+  { id: 'csharp', name: 'C#', version: '.NET 4.8' },
 ];
 
-const EXT: Record<string, string> = { c:'c', cpp:'cpp', python:'py', java:'java', javascript:'js' };
+const EXT: Record<string, string> = { 
+  c: 'c', 
+  cpp: 'cpp', 
+  python: 'py', 
+  java: 'java', 
+  javascript: 'js',
+  typescript: 'ts',
+  csharp: 'cs'
+};
 
 const DEFAULT_CODE: Record<string, string> = {
   c: '#include <stdio.h>\n\nint main() {\n    printf("Hello World\\n");\n    return 0;\n}',
@@ -20,6 +30,8 @@ const DEFAULT_CODE: Record<string, string> = {
   python: 'print("Hello World")',
   java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello World");\n    }\n}',
   javascript: 'console.log("Hello World");',
+  typescript: 'const add = (a: number, b: number): number => a + b;\nconsole.log("TypeScript Sum:", add(10, 20));',
+  csharp: 'using System;\n\npublic class Program {\n    public static void Main() {\n        Console.WriteLine("Hello from C#!");\n    }\n}',
 };
 
 function App() {
@@ -59,81 +71,56 @@ function App() {
       setActiveTab('terminal');
     }
 
-    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:8080'
-      : (import.meta.env.VITE_BACKEND_URL || 'https://compiler-backend.onrender.com');
-
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
     const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
 
-    let attempts = 0;
-    const maxAttempts = 15; // Up to 45 seconds total window for Render free tier to wake up
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
 
-    const connect = () => {
-      if (wsRef.current) {
-        wsRef.current.close();
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    const connectionTimer = setTimeout(() => {
+      if (ws.readyState !== WebSocket.OPEN) {
+        ws.close();
+        writeToTerminal('\r\n\x1b[31mError: Cannot connect to backend.\x1b[0m\r\n');
+        writeToTerminal('\x1b[90mMake sure the backend is running: cd backend && npm start\x1b[0m\r\n');
+        setIsPending(false);
       }
+    }, 5000);
 
-      attempts++;
-      if (attempts > 1) {
-        writeToTerminal(`\r\n\x1b[33mConnecting to compiler server... (Attempt ${attempts}/${maxAttempts})\x1b[0m\r\n`);
-        writeToTerminal(`\x1b[90mRender's free tier spins down after inactivity. Waking up server, please wait...\x1b[0m\r\n`);
-      } else {
-        writeToTerminal('\x1b[36mConnecting to compiler server...\x1b[0m\r\n');
-      }
-
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-
-      let connectionTimer = setTimeout(() => {
-        if (ws.readyState !== WebSocket.OPEN) {
-          ws.close();
-          handleFailure();
-        }
-      }, 5000); // 5s connection timeout per attempt
-
-      ws.onopen = () => {
-        clearTimeout(connectionTimer);
-        // Success! Clear connecting screen and run code
-        writeToTerminal('\x1b[2J\x1b[H\x1b[32mConnected! Running code...\x1b[0m\r\n\r\n');
-        ws.send(JSON.stringify({ type: 'run', language: language.id, code }));
-      };
-
-      ws.onmessage = (event) => {
-        const payload = JSON.parse(event.data);
-        if (payload.type === 'stdout') {
-          rawOutputRef.current += payload.data;
-          writeToTerminal(payload.data);
-        } else if (payload.type === 'stderr') {
-          rawOutputRef.current += payload.data;
-          writeToTerminal(payload.data);
-        } else if (payload.type === 'exit') {
-          setIsPending(false);
-          ws.close();
-        }
-      };
-
-      const handleFailure = () => {
-        clearTimeout(connectionTimer);
-        if (attempts < maxAttempts) {
-          setTimeout(connect, 3000); // Retry in 3 seconds
-        } else {
-          writeToTerminal('\r\n\x1b[31mError: Connection failed. The compiler server is currently offline. Please try again in a few moments.\x1b[0m\r\n');
-          setIsPending(false);
-        }
-      };
-
-      ws.onerror = () => {
-        // ws.onerror will call ws.onclose, so we let ws.onclose or our timeout handle the failure
-      };
-
-      ws.onclose = () => {
-        if (wsRef.current === ws) {
-          handleFailure();
-        }
-      };
+    ws.onopen = () => {
+      clearTimeout(connectionTimer);
+      writeToTerminal('\x1b[2J\x1b[H');
+      ws.send(JSON.stringify({ type: 'run', language: language.id, code }));
     };
 
-    connect();
+    ws.onmessage = (event) => {
+      const payload = JSON.parse(event.data);
+      if (payload.type === 'stdout') {
+        rawOutputRef.current += payload.data;
+        writeToTerminal(payload.data);
+      } else if (payload.type === 'stderr') {
+        rawOutputRef.current += payload.data;
+        writeToTerminal(payload.data);
+      } else if (payload.type === 'exit') {
+        setIsPending(false);
+        ws.close();
+      }
+    };
+
+    ws.onerror = () => {
+      clearTimeout(connectionTimer);
+    };
+
+    ws.onclose = () => {
+      clearTimeout(connectionTimer);
+      if (wsRef.current === ws && isPending) {
+        writeToTerminal('\r\n\x1b[31mConnection closed.\x1b[0m\r\n');
+        setIsPending(false);
+      }
+    };
   };
 
   const handleTerminalInput = (data: string) => {

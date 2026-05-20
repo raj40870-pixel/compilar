@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Networks - Comprehensive Study Guide & Simulators</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Dark Theme Variables (Default) */
+            --bg-color: #0b0f19;
+            --sidebar-bg: rgba(17, 24, 39, 0.7);
+            --card-bg: rgba(22, 30, 49, 0.65);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --glow-color: rgba(59, 130, 246, 0.2);
+            --code-bg: #1e293b;
+            --code-text: #38bdf8;
+            --shadow-primary: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --header-bg: rgba(11, 15, 25, 0.8);
+            --hero-bg: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 45%);
+            
+            --scroll-behavior: smooth;
+        }
+
+        [data-theme="light"] {
+            /* Light Theme Variables */
+            --bg-color: #f8fafc;
+            --sidebar-bg: rgba(255, 255, 255, 0.8);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-primary: #2563eb;
+            --accent-secondary: #059669;
+            --accent-warning: #d97706;
+            --accent-danger: #dc2626;
+            --glow-color: rgba(37, 99, 235, 0.1);
+            --code-bg: #f1f5f9;
+            --code-text: #0284c7;
+            --shadow-primary: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --header-bg: rgba(248, 250, 252, 0.85);
+            --hero-bg: radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 45%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        html {
+            scroll-behavior: var(--scroll-behavior);
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: var(--hero-bg);
+            background-attachment: fixed;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Glassmorphism Backgrounds */
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-primary);
+        }
+
+        /* App Wrapper */
+        .container {
+            display: flex;
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            padding-top: 80px; /* Space for fixed header */
+        }
+
+        /* Fixed Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 100;
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            background: var(--code-bg);
+            color: var(--accent-primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: 0;
+            -webkit-text-fill-color: initial;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle-btn {
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-primary);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            position: fixed;
+            top: 100px;
+            bottom: 20px;
+            left: 20px;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .sidebar h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item a:hover, .nav-item.active a {
+            color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.08);
+            border-left-color: var(--accent-primary);
+        }
+
+        /* Main Content Container */
+        main.content-area {
+            flex: 1;
+            margin-left: 320px;
+            padding: 20px 40px 100px 20px;
+            max-width: calc(100% - 320px);
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 50px;
+            scroll-margin-top: 100px; /* Offset for sticky header */
+        }
+
+        .unit-card {
+            padding: 35px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unit-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-radius: 50px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1.section-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        h2.subsection-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 8px;
+        }
+
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        b, strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Callout Box */
+        .callout {
+            border-left: 4px solid var(--accent-primary);
+            background: rgba(59, 130, 246, 0.04);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .callout.warning {
+            border-left-color: var(--accent-warning);
+            background: rgba(245, 158, 11, 0.04);
+        }
+
+        .callout h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        /* Topologies Grid & CSS Shapes */
+        .topology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .topo-card {
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .topo-card h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .topo-visual {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+        }
+
+        /* Table Design */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .styled-table th, .styled-table td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .styled-table th {
+            background-color: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .styled-table tr {
+            border-bottom: 1px solid var(--card-border);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .styled-table tr:nth-of-type(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .styled-table tr:last-of-type {
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        /* Grid layouts */
+        .flex-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+
+        .flex-col {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* ── INTERACTIVE WIDGET 1: OSI Explorer ── */
+        .osi-explorer {
+            display: flex;
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .osi-stack {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .osi-layer-bar {
+            padding: 14px 20px;
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            text-align: center;
+            user-select: none;
+            color: var(--text-secondary);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .osi-layer-bar:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 12px var(--glow-color);
+            color: var(--text-primary);
+        }
+
+        .osi-layer-bar.active {
+            background: linear-gradient(135deg, var(--accent-primary), #1d4ed8);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .osi-layer-bar .layer-num {
+            position: absolute;
+            left: 15px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .osi-layer-details {
+            flex: 1;
+            padding: 30px;
+            border-radius: 12px;
+            min-height: 380px;
+        }
+
+        .osi-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .osi-details-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+        }
+
+        .osi-pdu-badge {
+            background: var(--code-bg);
+            color: var(--accent-secondary);
+            font-family: 'Fira Code', monospace;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .osi-details-section {
+            margin-bottom: 20px;
+        }
+
+        .osi-details-section h5 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .osi-details-section p {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+        }
+
+        /* ── INTERACTIVE WIDGET 2: Subnet Calculator ── */
+        .subnet-calculator {
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .calc-inputs {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px 15px;
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--glow-color);
+        }
+
+        .calc-btn {
+            background: linear-gradient(135deg, var(--accent-primary), #2563eb);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .calc-results {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .result-card {
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-card .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .result-card .val {
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--accent-secondary);
+        }
+
+        /* ── INTERACTIVE WIDGET 3: Sliding Window Simulator ── */
+        .window-simulator {
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .sim-btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .sim-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .sim-btn.primary {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+        }
+
+        .sim-btn.primary:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+        }
+
+        .sim-track {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .sim-buffer {
+            display: flex;
+            gap: 8px;
+            position: relative;
+            padding: 5px;
+        }
+
+        .sim-frame {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--code-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .sim-frame.sent-acked {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        .sim-frame.in-flight {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+            animation: pulse-warn 1.5s infinite ease-in-out;
+        }
+
+        .sim-frame.lost {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+
+        /* Window Overlay outline */
+        .window-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border: 3px solid var(--accent-primary);
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.05);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .sim-console {
+            background: #020617;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 15px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .sim-console .log-line {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .sim-console .log-line .time {
+            color: var(--text-secondary);
+        }
+
+        @keyframes pulse-warn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 8px rgba(245, 158, 11, 0.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* Topology CSS Visuals */
+        .visual-star::before {
+            content: 'Switch / Hub';
+            padding: 4px 8px;
+            background: var(--accent-primary);
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            z-index: 2;
+        }
+        
+        .visual-star {
+            position: relative;
+        }
+
+        .node-c {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+        }
+
+        .n1 { top: 15px; left: 30px; }
+        .n2 { top: 15px; right: 30px; }
+        .n3 { bottom: 15px; left: 30px; }
+        .n4 { bottom: 15px; right: 30px; }
+        
+        .visual-star::after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 1px dashed var(--text-secondary);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .visual-bus::before {
+            content: '';
+            position: absolute;
+            width: 85%;
+            height: 6px;
+            background: var(--text-primary);
+            border-radius: 3px;
+        }
+
+        .bus-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-primary);
+            border-radius: 30%;
+        }
+
+        .bn1 { top: 15px; left: 20%; }
+        .bn2 { bottom: 15px; left: 40%; }
+        .bn3 { top: 15px; left: 60%; }
+        .bn4 { bottom: 15px; left: 80%; }
+
+        .visual-ring::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--text-primary);
+            border-radius: 50%;
+        }
+
+        .rn1 { top: 15px; left: 50%; transform: translateX(-50%); }
+        .rn2 { bottom: 15px; left: 50%; transform: translateX(-50%); }
+        .rn3 { left: 30px; top: 50%; transform: translateY(-50%); }
+        .rn4 { right: 30px; top: 50%; transform: translateY(-50%); }
+
+        .visual-mesh {
+            background-image: radial-gradient(var(--text-secondary) 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            background-position: center;
+        }
+
+        /* Responsive Mobile layout adjustments */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                padding-top: 100px;
+            }
+            .sidebar {
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin-bottom: 20px;
+                max-height: 250px;
+            }
+            main.content-area {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 10px 20px;
+            }
+            .osi-explorer {
+                flex-direction: column;
+            }
+            .osi-stack {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Fixed Header -->
+    <header>
+        <div class="logo">
+            📂 NETWORKS<span>STUDY GUIDE</span>
+        </div>
+        <div class="header-actions">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                🌙
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar glass">
+            <h2>Syllabus Outline</h2>
+            <ul class="nav-list">
+                <li class="nav-item active"><a href="#unit1">📌 Basic Concepts</a></li>
+                <li class="nav-item"><a href="#unit2">⚡ Physical Layer</a></li>
+                <li class="nav-item"><a href="#unit3">🔗 Data Link Layer</a></li>
+                <li class="nav-item"><a href="#unit4">🌐 Network Layer</a></li>
+                <li class="nav-item"><a href="#unit5">🚚 Transport Layer</a></li>
+                <li class="nav-item"><a href="#unit6">🔐 Application & Security</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- ── UNIT 1: BASIC CONCEPTS ── -->
+            <section id="unit1">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 1</span>
+                    <h1 class="section-title">Basic Network Concepts</h1>
+                    
+                    <h2 class="subsection-title">Data Communication Components</h2>
+                    <p>
+                        Data communication is the exchange of data between two devices via some form of transmission medium. A complete data communication system is built upon <b>five essential pillars</b>:
+                    </p>
+                    
+                    <ol style="margin-left: 25px; margin-bottom: 20px; color: var(--text-secondary); line-height: 1.8;">
+                        <li><b>Message:</b> The information (data) to be communicated. Common formats include text, numbers, pictures, audio, and video.</li>
+                        <li><b>Sender:</b> The device that sends the data message (computer, workstation, telephone handset, video camera, etc.).</li>
+                        <li><b>Receiver:</b> The device that receives the message (computer, workstation, television, terminal, etc.).</li>
+                        <li><b>Transmission Medium:</b> The physical path by which a message travels from sender to receiver (twisted-pair wire, coaxial cable, fiber-optic cable, radio waves).</li>
+                        <li><b>Protocol:</b> A set of rules that govern data communications. It represents an agreement between the communicating devices. Without a protocol, two devices may be connected but not communicating.</li>
+                    </ol>
+
+                    <!-- OSI Reference Model Widget Section -->
+                    <h2 class="subsection-title">The OSI Reference Model Explorer</h2>
+                    <p>
+                        The Open Systems Interconnection (OSI) model defines a conceptual framework for network communications. Click on any layer below to explore its data formats, functions, and key protocols:
+                    </p>
+
+                    <!-- Interactive OSI Layer Explorer -->
+                    <div class="osi-explorer">
+                        <div class="osi-stack">
+                            <div class="osi-layer-bar active" data-layer="7"><span class="layer-num">L7</span>Application</div>
+                            <div class="osi-layer-bar" data-layer="6"><span class="layer-num">L6</span>Presentation</div>
+                            <div class="osi-layer-bar" data-layer="5"><span class="layer-num">L5</span>Session</div>
+                            <div class="osi-layer-bar" data-layer="4"><span class="layer-num">L4</span>Transport</div>
+                            <div class="osi-layer-bar" data-layer="3"><span class="layer-num">L3</span>Network</div>
+                            <div class="osi-layer-bar" data-layer="2"><span class="layer-num">L2</span>Data Link</div>
+                            <div class="osi-layer-bar" data-layer="1"><span class="layer-num">L1</span>Physical</div>
+                        </div>
+                        
+                        <div class="osi-layer-details glass" id="osi-details-box">
+                            <!-- Populated dynamically via JS -->
+                            <div class="osi-details-header">
+                                <h3 id="osi-name">Application Layer</h3>
+                                <span class="osi-pdu-badge" id="osi-pdu">PDU: Data</span>
+                            </div>
+                            <div class="osi-details-section">
+                                <h5>Core Responsibility</h5>
+                                <p id="osi-desc">Direct interface to network services for user applications. Provides communication services directly to software applications.</p>
+                            </div>
+                            <div class="osi-details-section">
+                                <h5>Key Protocols</h5>
+                                <p id="osi-protocols">HTTP, HTTPS, FTP, DNS, SMTP, DHCP, Telnet</p>
+                            </div>
+                            <div class="osi-details-section">
+                                <h5>Associated Devices</h5>
+                                <p id="osi-devices">Gateways, Firewalls, Application Hosts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="subsection-title">Network Topologies</h2>
+                    <p>
+                        Topology refers to the physical or logical layout in which nodes, links, and devices are arranged. Choosing a topology impacts network resilience, costs, and scalability.
+                    </p>
+
+                    <div class="topology-grid">
+                        <div class="topo-card">
+                            <div class="topo-visual visual-bus">
+                                <div class="bus-node bn1"></div>
+                                <div class="bus-node bn2"></div>
+                                <div class="bus-node bn3"></div>
+                                <div class="bus-node bn4"></div>
+                            </div>
+                            <h4>Bus Topology</h4>
+                            <p style="font-size: 0.85rem;">All nodes share a single central cable. Single point of failure; collision prone.</p>
+                        </div>
+                        <div class="topo-card">
+                            <div class="topo-visual visual-star">
+                                <div class="node-c n1"></div>
+                                <div class="node-c n2"></div>
+                                <div class="node-c n3"></div>
+                                <div class="node-c n4"></div>
+                            </div>
+                            <h4>Star Topology</h4>
+                            <p style="font-size: 0.85rem;">Nodes connect to a central Hub/Switch. Highly robust; easily expandable.</p>
+                        </div>
+                        <div class="topo-card">
+                            <div class="topo-visual visual-ring">
+                                <div class="node-c rn1"></div>
+                                <div class="node-c rn2"></div>
+                                <div class="node-c rn3"></div>
+                                <div class="node-c rn4"></div>
+                            </div>
+                            <h4>Ring Topology</h4>
+                            <p style="font-size: 0.85rem;">Circular ring passing tokens. Orderly access, but a broken link halts communication.</p>
+                        </div>
+                        <div class="topo-card">
+                            <div class="topo-visual visual-mesh"></div>
+                            <h4>Mesh Topology</h4>
+                            <p style="font-size: 0.85rem;">Point-to-point links. Maximally redundant, private, and secure; complex cabling.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── UNIT 2: PHYSICAL LAYER ── -->
+            <section id="unit2">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 2</span>
+                    <h1 class="section-title">Physical Layer</h1>
+                    
+                    <h2 class="subsection-title">Transmission Media</h2>
+                    <p>
+                        Transmission media is the physical path between sender and receiver. It is broadly categorized into:
+                    </p>
+                    
+                    <div class="flex-container">
+                        <div class="flex-col">
+                            <h3>Guided (Wired) Media</h3>
+                            <p>Signals are guided along a solid material path (cables).</p>
+                            <ul style="margin-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+                                <li><b>Twisted Pair:</b> Copper wires twisted to reduce electromagnetic interference (crosstalk). Cat6 supports up to 10 Gbps.</li>
+                                <li><b>Coaxial Cable:</b> Solid copper core shielded with braided mesh. Ideal for broadband cable feeds.</li>
+                                <li><b>Fiber Optic:</b> Glass or plastic core using Total Internal Reflection to transmit data via light pulses. Offers highest bandwidth, immune to EMI.</li>
+                            </ul>
+                        </div>
+                        <div class="flex-col">
+                            <h3>Unguided (Wireless) Media</h3>
+                            <p>Electromagnetic waves are radiated through space without physical guidepaths.</p>
+                            <ul style="margin-left: 20px; color: var(--text-secondary); line-height: 1.6;">
+                                <li><b>Radio Waves:</b> Multidirectional, low-frequency waves capable of passing through structural walls.</li>
+                                <li><b>Microwaves:</b> Unidirectional, line-of-sight propagation. Widely used for satellite feeds and towers.</li>
+                                <li><b>Infrared:</b> Short-range, line-of-sight communication (remotes). Cannot pass through solid barriers.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h2 class="subsection-title">Signal Impairments</h2>
+                    <p>
+                        Signals undergo degradation as they travel over physical media. The three main impairments are:
+                    </p>
+                    <div class="callout warning">
+                        <h4>1. Attenuation</h4>
+                        <p>Loss of signal energy over distance. Signals degrade into thermal energy. Repeaters/amplifiers are installed to boost attenuation losses.</p>
+                    </div>
+                    <div class="callout warning">
+                        <h4>2. Distortion</h4>
+                        <p>A change in the shape of a composite signal made of different frequencies. Since different frequencies travel at slightly different speeds through a medium, they arrive at the destination out of phase.</p>
+                    </div>
+                    <div class="callout warning">
+                        <h4>3. Noise</h4>
+                        <p>External interference corrupting the signal. Includes Thermal Noise (random electron movement), Induced Noise (from external motors/appliances), Crosstalk (adjacent wire leakage), and Impulse Noise (spikes).</p>
+                    </div>
+
+                    <h2 class="subsection-title">Data Rate Limitations</h2>
+                    <p>
+                        The maximum theoretical speed of data transmission depends on the bandwidth and noise levels:
+                    </p>
+                    <div class="styled-table">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Theorem</th>
+                                    <th>Channel Type</th>
+                                    <th>Mathematical Formula</th>
+                                    <th>Key Parameters</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Nyquist Bit Rate</b></td>
+                                    <td>Noiseless Channel</td>
+                                    <td><code>Bit Rate = 2 × Bandwidth × log₂(L)</code></td>
+                                    <td><code>L</code> = Number of signal levels. Maximum rate is constrained by signal levels.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Shannon Capacity</b></td>
+                                    <td>Noisy Channel</td>
+                                    <td><code>Capacity = Bandwidth × log₂(1 + SNR)</code></td>
+                                    <td><code>SNR</code> = Signal-to-Noise Ratio (Power ratio). Represents absolute speed ceiling.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── UNIT 3: DATA LINK LAYER ── -->
+            <section id="unit3">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 3</span>
+                    <h1 class="section-title">Data Link Layer</h1>
+                    
+                    <h2 class="subsection-title">Framing & Flow Control</h2>
+                    <p>
+                        The Data Link Layer structures raw bits into logical units called <b>Frames</b>. It regulates transmission rate to match slow receivers (Flow Control) and handles corrupt packets.
+                    </p>
+
+                    <h3>Framing Methods</h3>
+                    <p>
+                        To allow a receiver to identify frame boundaries, standard structures are used:
+                    </p>
+                    <ul style="margin-left: 20px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                        <li><b>Character Count:</b> Specifies the total number of characters in the frame in the header. (Risk: if count gets corrupted, all subsequent frame alignment is lost).</li>
+                        <li><b>Bit Stuffing:</b> Uses a special flag byte (e.g. <code>01111110</code>) to demarcate the start and end. If the sender finds five consecutive 1s in the data, it inserts a dummy <code>0</code>. The receiver filters this dummy bit out.</li>
+                    </ul>
+
+                    <h3>Flow Control Strategies</h3>
+                    <p>
+                        <b>Sliding Window</b> protocols allow sending multiple frames without waiting for immediate individual acknowledgments.
+                    </p>
+                    
+                    <!-- Sliding Window Simulator Widget -->
+                    <div class="window-simulator glass">
+                        <h3>Interactive Sliding Window Simulator (Go-Back-N)</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 15px;">
+                            Simulate the sender transmitting frames within a window size of <b>4</b>. If a packet gets dropped or NAK is received, Go-Back-N forces retransmission of the entire window contents starting from the error frame.
+                        </p>
+                        
+                        <div class="sim-controls">
+                            <button id="sim-send" class="sim-btn primary">Send Next Frame</button>
+                            <button id="sim-drop" class="sim-btn">Simulate Drop/Loss</button>
+                            <button id="sim-reset" class="sim-btn">Reset Simulator</button>
+                        </div>
+
+                        <div class="sim-track">
+                            <div class="sim-buffer" id="sim-buffer-el">
+                                <div class="sim-frame sent-acked" data-frame="0">0</div>
+                                <div class="sim-frame sent-acked" data-frame="1">1</div>
+                                <div class="sim-frame sent-acked" data-frame="2">2</div>
+                                <div class="sim-frame in-flight" data-frame="3">3</div>
+                                <div class="sim-frame in-flight" data-frame="4">4</div>
+                                <div class="sim-frame in-flight" data-frame="5">5</div>
+                                <div class="sim-frame" data-frame="6">6</div>
+                                <div class="sim-frame" data-frame="7">7</div>
+                                <div class="sim-frame" data-frame="8">8</div>
+                                <div class="sim-frame" data-frame="9">9</div>
+                            </div>
+                            <div class="window-overlay" id="window-overlay-el"></div>
+                        </div>
+
+                        <div class="sim-console" id="sim-console-el">
+                            <div class="log-line"><span class="time">[00:00]</span> Simulator initialized. Window starts at frame 0.</div>
+                        </div>
+                    </div>
+
+                    <h2 class="subsection-title">Error Handling</h2>
+                    <div class="flex-container">
+                        <div class="flex-col">
+                            <h3>Error Detection: CRC</h3>
+                            <p>
+                                <b>Cyclic Redundancy Check (CRC)</b> uses polynomial division. Data bits are appended with <code>n-1</code> zeros, and divided by an <code>n-bit</code> generator polynomial using XOR division. The resulting remainder is appended to the message. The receiver divides the message; a non-zero remainder signals corruption.
+                            </p>
+                        </div>
+                        <div class="flex-col">
+                            <h3>Error Correction: Hamming Code</h3>
+                            <p>
+                                <b>Hamming Code</b> inserts parity check bits at positions <code>2^k</code> (1, 2, 4, 8, etc.). Each parity bit validates selected sets of data bits. If parity checks fail, adding the index weights of all failed tests pinpoints the exact bit flipped, correcting it on the fly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── UNIT 4: NETWORK LAYER ── -->
+            <section id="unit4">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 4</span>
+                    <h1 class="section-title">Network Layer</h1>
+                    
+                    <h2 class="subsection-title">Logical Addressing (IPv4 vs. IPv6)</h2>
+                    <p>
+                        The Network Layer handles packet delivery between host machines. It maps logical IP addresses to physical MAC destinations.
+                    </p>
+
+                    <div class="styled-table">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>IPv4 Protocol</th>
+                                    <th>IPv6 Protocol</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Address Space</b></td>
+                                    <td>32-bit (4.3 Billion Addresses)</td>
+                                    <td>128-bit (3.4 × 10³⁸ Addresses)</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Notation Format</b></td>
+                                    <td>Dotted Decimal: <code>192.168.1.100</code></td>
+                                    <td>Hexadecimal Colon: <code>2001:db8::ff00:42:8329</code></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Configuration</b></td>
+                                    <td>DHCP or Manual configuration</td>
+                                    <td>Auto-Configuration (SLAAC) or DHCPv6</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Security</b></td>
+                                    <td>IPSec support is optional/add-on</td>
+                                    <td>IPSec is built-in and mandatory</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Subnet Calculator Widget Section -->
+                    <h2 class="subsection-title">Interactive IP Subnet Calculator</h2>
+                    <p>
+                        Enter an IPv4 network address and CIDR prefix length (e.g. <code>24</code>) to compute network segments, subnet masks, usable host boundaries, and broadcast addresses instantly:
+                    </p>
+
+                    <!-- Subnet Calc UI -->
+                    <div class="subnet-calculator glass">
+                        <div class="calc-inputs">
+                            <div class="input-group">
+                                <label for="ip-input">IP Address</label>
+                                <input type="text" id="ip-input" value="192.168.1.1" placeholder="e.g. 192.168.1.1">
+                            </div>
+                            <div class="input-group">
+                                <label for="cidr-input">CIDR Prefix</label>
+                                <select id="cidr-input">
+                                    <!-- Dynamic elements from JS loop -->
+                                    <option value="24" selected>/24 (Class C Default)</option>
+                                    <option value="8">/8 (Class A Default)</option>
+                                    <option value="16">/16 (Class B Default)</option>
+                                    <option value="25">/25</option>
+                                    <option value="26">/26</option>
+                                    <option value="27">/27</option>
+                                    <option value="28">/28</option>
+                                    <option value="30">/30 (Point-to-Point)</option>
+                                </select>
+                            </div>
+                            <button id="calc-trigger" class="calc-btn">Calculate Subnet</button>
+                        </div>
+
+                        <div class="calc-results">
+                            <div class="result-card">
+                                <div class="label">Subnet Mask</div>
+                                <div class="val" id="res-mask">255.255.255.0</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="label">Network ID</div>
+                                <div class="val" id="res-network">192.168.1.0</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="label">Usable Host Range</div>
+                                <div class="val" id="res-range">192.168.1.1 - 192.168.1.254</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="label">Broadcast Address</div>
+                                <div class="val" id="res-broadcast">192.168.1.255</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="subsection-title">Routing Algorithms</h2>
+                    <div class="flex-container">
+                        <div class="flex-col">
+                            <h3>Distance Vector Routing</h3>
+                            <p>
+                                Uses the <b>Bellman-Ford algorithm</b>. Routers advertise their routing tables containing hop counts and destination keys only to adjacent direct neighbors periodically. RIP is a classic implementation. Limited by slow convergence and the "Count-to-Infinity" loop issue.
+                            </p>
+                        </div>
+                        <div class="flex-col">
+                            <h3>Link State Routing</h3>
+                            <p>
+                                Uses <b>Dijkstra's shortest path algorithm</b>. Routers flood link state status to the entire network, building a comprehensive local topological map of the environment. OSPF uses this, converging fast with zero loop risks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── UNIT 5: TRANSPORT LAYER ── -->
+            <section id="unit5">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 5</span>
+                    <h1 class="section-title">Transport Layer</h1>
+                    
+                    <h2 class="subsection-title">Transmission Control Protocol (TCP) vs. User Datagram Protocol (UDP)</h2>
+                    <p>
+                        The Transport Layer provides logical end-to-end communication channels between applications. The choice between TCP and UDP defines the speed and reliability characteristics of the connection:
+                    </p>
+
+                    <div class="styled-table">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Criteria</th>
+                                    <th>TCP Protocol</th>
+                                    <th>UDP Protocol</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Connection State</b></td>
+                                    <td>Connection-Oriented (Three-Way Handshake)</td>
+                                    <td>Connectionless (Fire and Forget)</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Reliability</b></td>
+                                    <td>Guaranteed delivery. Drops trigger retransmission.</td>
+                                    <td>Best-effort delivery. Packets can be lost.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Flow/Congestion</b></td>
+                                    <td>Has sophisticated sliding-windows & rate adaptors.</td>
+                                    <td>No rate management. Transmits as fast as possible.</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Header Overhead</b></td>
+                                    <td>20 to 60 Bytes (Contains flags, options)</td>
+                                    <td>Fixed 8 Bytes (Lightweight)</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Ideal Workloads</b></td>
+                                    <td>Web browsing (HTTP), Email (SMTP), File transfer (FTP).</td>
+                                    <td>VoIP, Video Streaming, Gaming, DNS lookup.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 class="subsection-title">TCP Congestion Control</h2>
+                    <p>
+                        TCP regulates network buffer congestion by adjusting its <b>Congestion Window (cwnd)</b> dynamically in response to packets dropping:
+                    </p>
+                    
+                    <ul style="margin-left: 20px; color: var(--text-secondary); line-height: 1.7; margin-top: 10px;">
+                        <li><b>Slow Start:</b> Starts with <code>cwnd = 1</code>. Doubles window size every Round Trip Time (RTT).</li>
+                        <li><b>Congestion Avoidance:</b> Once <code>cwnd</code> reaches the threshold (<code>ssthresh</code>), switch to linear growth (increments by 1 packet per RTT).</li>
+                        <li><b>Fast Retransmit:</b> If sender gets 3 duplicate ACKs for a frame, it assumes loss occurred and resends the segment immediately, rather than waiting for timer timeout.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ── UNIT 6: APPLICATION LAYER & SECURITY ── -->
+            <section id="unit6">
+                <div class="unit-card glass">
+                    <span class="unit-badge">Unit 6</span>
+                    <h1 class="section-title">Application Layer & Security</h1>
+                    
+                    <h2 class="subsection-title">Application Services Overview</h2>
+                    <p>
+                        The top-most layer bridges network architectures to client software interfaces. It processes high-level application protocols:
+                    </p>
+
+                    <div class="flex-container">
+                        <div class="flex-col">
+                            <h3>DNS (Domain Name System)</h3>
+                            <p>
+                                Translates host domains (e.g. <code>wikipedia.org</code>) to logical IP locations. It is a hierarchical, distributed database queried using UDP on port 53.
+                            </p>
+                        </div>
+                        <div class="flex-col">
+                            <h3>HTTP vs. HTTPS</h3>
+                            <p>
+                                <b>HTTP (Port 80)</b> transmits raw text payloads. <b>HTTPS (Port 443)</b> wraps the connection inside encrypted TLS (Transport Layer Security) tunnels, verifying authority with SSL certificates.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h2 class="subsection-title">Network Security Foundations</h2>
+                    <p>
+                        Protecting internal networks from unauthorized access involves two primary tools:
+                    </p>
+
+                    <div class="callout">
+                        <h4>Firewalls (Security boundaries)</h4>
+                        <p>
+                            Analyzes packet structures to filter unwanted access. Can be <b>Stateless packet filtering</b> (filtering by source IP/ports) or <b>Stateful Inspection</b> (understanding active session context and blocking unrequested inbound packets).
+                        </p>
+                    </div>
+
+                    <div class="callout warning">
+                        <h4>VPNs (Virtual Private Networks)</h4>
+                        <p>
+                            Extends private networks across public paths using secure tunnel encryption. Standard tunneling frameworks include <b>IPsec</b> (layer 3 network encapsulation) and <b>SSL/TLS portals</b> (layer 4 tunnels).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- UI/UX Dynamic Scripting -->
+    <script>
+        // ── Theme Switcher Code ──
+        const themeBtn = document.getElementById('theme-toggle');
+        
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeBtn.textContent = '☀️';
+            }
+        });
+
+        // ── OSI Layer Explorer Content Database ──
+        const osiDatabase = {
+            7: {
+                name: 'Application Layer',
+                pdu: 'Data',
+                responsibility: 'Direct interface to network services for end-user applications. Manages software-to-software communication and resource sharing.',
+                protocols: 'HTTP, HTTPS, FTP, DNS, SMTP, DHCP, Telnet, SSH',
+                devices: 'Gateways, Firewalls, Application Hosts'
+            },
+            6: {
+                name: 'Presentation Layer',
+                pdu: 'Data',
+                responsibility: 'Translates syntax and formats data. Performs essential data translation, encryption, decryption, compression, and formatting.',
+                protocols: 'SSL/TLS, ASCII, JPEG, MPEG, GIF, MIDI',
+                devices: 'Gateways, Web Proxies'
+            },
+            5: {
+                name: 'Session Layer',
+                pdu: 'Data',
+                responsibility: 'Manages sessions (dialogs) between two applications. Establishes, controls, and terminates connections, adding checkpoints for sync Recovery.',
+                protocols: 'NetBIOS, RPC, PPTP, SQL, SOCKS',
+                devices: 'Gateways, Application Hosts'
+            },
+            4: {
+                name: 'Transport Layer',
+                pdu: 'Segment (TCP) / Datagram (UDP)',
+                responsibility: 'Ensures reliable, end-to-end data delivery. Manages segmentation, flow control, error checking, and port-based multiplexing.',
+                protocols: 'TCP, UDP, SCTP, DCCP',
+                devices: 'Layer 4 Load Balancers, Gateways'
+            },
+            3: {
+                name: 'Network Layer',
+                pdu: 'Packet',
+                responsibility: 'Logical addressing and routing. Determines the optimal path for forwarding packets across interconnected physical networks.',
+                protocols: 'IPv4, IPv6, ICMP, IPsec, ARP, RIP, OSPF, BGP',
+                devices: 'Routers, Layer 3 Switches'
+            },
+            2: {
+                name: 'Data Link Layer',
+                pdu: 'Frame',
+                responsibility: 'Provides node-to-node data transfer. Controls access to the physical media (MAC), structures bits into frames, and detects errors (CRC).',
+                protocols: 'Ethernet (802.3), Wi-Fi (802.11), PPP, Frame Relay, L2TP, VLAN (802.1Q)',
+                devices: 'Network Switches, Bridges, Network Interface Cards (NICs)'
+            },
+            1: {
+                name: 'Physical Layer',
+                pdu: 'Bit',
+                responsibility: 'Transmits raw unstructured bitstreams over physical copper, fiber, or radio channels. Handles voltage levels, cable specifications, and interface standards.',
+                protocols: 'Ethernet PHY, DSL, Bluetooth (Radio), USB, RS-232, fiber standards',
+                devices: 'Hubs, Repeaters, Cables (UTP/Coax/Fiber), Transceivers, Modems'
+            }
+        };
+
+        const osiBars = document.querySelectorAll('.osi-layer-bar');
+        const osiName = document.getElementById('osi-name');
+        const osiPdu = document.getElementById('osi-pdu');
+        const osiDesc = document.getElementById('osi-desc');
+        const osiProtocols = document.getElementById('osi-protocols');
+        const osiDevices = document.getElementById('osi-devices');
+
+        osiBars.forEach(bar => {
+            bar.addEventListener('click', () => {
+                osiBars.forEach(b => b.classList.remove('active'));
+                bar.classList.add('active');
+
+                const layerId = bar.getAttribute('data-layer');
+                const data = osiDatabase[layerId];
+
+                osiName.textContent = data.name;
+                osiPdu.textContent = `PDU: ${data.pdu}`;
+                osiDesc.textContent = data.responsibility;
+                osiProtocols.textContent = data.protocols;
+                osiDevices.textContent = data.devices;
+            });
+        });
+
+        // ── Subnet Calculator JavaScript Logic ──
+        const calcTrigger = document.getElementById('calc-trigger');
+        
+        // CIDR dropdown population helper
+        const cidrSelect = document.getElementById('cidr-input');
+        cidrSelect.innerHTML = '';
+        for(let i=8; i<=30; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `/${i} (${i <= 15 ? 'Class A' : (i <= 23 ? 'Class B' : 'Class C')} Subnet)`;
+            if(i === 24) opt.selected = true;
+            cidrSelect.appendChild(opt);
+        }
+
+        calcTrigger.addEventListener('click', () => {
+            const ipVal = document.getElementById('ip-input').value.trim();
+            const cidrVal = parseInt(cidrSelect.value);
+
+            // Validating IPv4 structure
+            const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+            if (!ipRegex.test(ipVal)) {
+                alert("Please enter a valid IPv4 address (e.g. 192.168.1.1)");
+                return;
+            }
+
+            const octets = ipVal.split('.').map(Number);
+            if (octets.some(o => o > 255)) {
+                alert("IP octets must be between 0 and 255");
+                return;
+            }
+
+            // Calculate Subnet Mask
+            let maskBinary = "".padEnd(cidrVal, "1").padEnd(32, "0");
+            const maskOctets = [];
+            for (let i = 0; i < 4; i++) {
+                maskOctets.push(parseInt(maskBinary.substr(i * 8, 8), 2));
+            }
+            const subnetMask = maskOctets.join('.');
+
+            // Calculate Network ID
+            const netOctets = [];
+            for (let i = 0; i < 4; i++) {
+                netOctets.push(octets[i] & maskOctets[i]);
+            }
+            const networkID = netOctets.join('.');
+
+            // Calculate Broadcast Address
+            const broadcastBinary = "".padEnd(cidrVal, "0").padEnd(32, "1");
+            const broadcastOctets = [];
+            const netBinary = netOctets.map(o => o.toString(2).padStart(8, '0')).join('');
+            
+            let finalBroadcastBin = "";
+            for(let i=0; i<32; i++) {
+                if(i < cidrVal) {
+                    finalBroadcastBin += netBinary[i];
+                } else {
+                    finalBroadcastBin += "1";
+                }
+            }
+            
+            for (let i = 0; i < 4; i++) {
+                broadcastOctets.push(parseInt(finalBroadcastBin.substr(i * 8, 8), 2));
+            }
+            const broadcastAddress = broadcastOctets.join('.');
+
+            // Usable Host Ranges
+            const firstHostOctets = [...netOctets];
+            firstHostOctets[3] += 1;
+            const firstHost = firstHostOctets.join('.');
+
+            const lastHostOctets = [...broadcastOctets];
+            lastHostOctets[3] -= 1;
+            const lastHost = lastHostOctets.join('.');
+
+            // Update UI elements
+            document.getElementById('res-mask').textContent = subnetMask;
+            document.getElementById('res-network').textContent = `${networkID}/${cidrVal}`;
+            document.getElementById('res-range').textContent = `${firstHost} - ${lastHost}`;
+            document.getElementById('res-broadcast').textContent = broadcastAddress;
+        });
+
+        // ── Sliding Window Simulator Logic ──
+        let windowStart = 0;
+        let windowSize = 4;
+        let totalFrames = 10;
+        let inFlightFrames = [];
+        let ackedFrames = [0, 1, 2];
+        const consoleEl = document.getElementById('sim-console-el');
+        const overlayEl = document.getElementById('window-overlay-el');
+        const bufferEl = document.getElementById('sim-buffer-el');
+
+        function addLog(text) {
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            consoleEl.innerHTML += `<div class="log-line"><span class="time">[${timeStr}]</span> <span>${text}</span></div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function updateSimUI() {
+            // Update frames styles
+            const frames = document.querySelectorAll('.sim-frame');
+            frames.forEach((el, index) => {
+                el.className = 'sim-frame';
+                if (ackedFrames.includes(index)) {
+                    el.classList.add('sent-acked');
+                } else if (inFlightFrames.includes(index)) {
+                    el.classList.add('in-flight');
+                }
+            });
+
+            // Adjust window overlay position
+            const startFrameEl = document.querySelector(`.sim-frame[data-frame="${windowStart}"]`);
+            if (startFrameEl) {
+                const rect = startFrameEl.getBoundingClientRect();
+                const parentRect = bufferEl.getBoundingClientRect();
+                
+                const leftOffset = startFrameEl.offsetLeft;
+                // Calculate width of window
+                let width = 0;
+                for (let i = 0; i < windowSize; i++) {
+                    const el = document.querySelector(`.sim-frame[data-frame="${windowStart + i}"]`);
+                    if (el) {
+                        width += el.offsetWidth + 8; // width + gap
+                    }
+                }
+                width -= 4; // trim trailing margin offset
+                overlayEl.style.left = `${leftOffset - 4}px`;
+                overlayEl.style.width = `${width + 8}px`;
+            }
+        }
+
+        document.getElementById('sim-send').addEventListener('click', () => {
+            // Send the next un-sent frame in window
+            let nextToSend = -1;
+            for (let i = 0; i < windowSize; i++) {
+                const idx = windowStart + i;
+                if (idx < totalFrames && !ackedFrames.includes(idx) && !inFlightFrames.includes(idx)) {
+                    nextToSend = idx;
+                    break;
+                }
+            }
+
+            if (nextToSend === -1) {
+                // Check if all are acked
+                const allDone = Array.from({length: totalFrames}, (_,i) => i).every(f => ackedFrames.includes(f));
+                if (allDone) {
+                    addLog("🎉 All frames successfully transmitted & acknowledged!");
+                } else {
+                    addLog("⚠️ Window is full. Waiting for acknowledgments (ACKs) to slide.");
+                }
+                return;
+            }
+
+            inFlightFrames.push(nextToSend);
+            addLog(`✈️ Sent frame ${nextToSend}. Waiting for ACK...`);
+            updateSimUI();
+
+            // Simulate ACK arrival after 1.5 seconds
+            setTimeout(() => {
+                if (inFlightFrames.includes(nextToSend)) {
+                    // Check if it hasn't been dropped
+                    inFlightFrames = inFlightFrames.filter(f => f !== nextToSend);
+                    ackedFrames.push(nextToSend);
+                    addLog(`✅ Received ACK for frame ${nextToSend}`);
+                    
+                    // Slide window if windowStart has been acked
+                    while (ackedFrames.includes(windowStart) && windowStart < totalFrames) {
+                        windowStart++;
+                        addLog(`▶️ Window slid. Current start: frame ${windowStart}`);
+                    }
+                    updateSimUI();
+                }
+            }, 1200);
+        });
+
+        document.getElementById('sim-drop').addEventListener('click', () => {
+            if (inFlightFrames.length === 0) {
+                addLog("⚠️ No packets currently in flight to drop!");
+                return;
+            }
+            const dropped = inFlightFrames.shift();
+            const frameEl = document.querySelector(`.sim-frame[data-frame="${dropped}"]`);
+            if (frameEl) {
+                frameEl.className = 'sim-frame lost';
+            }
+            addLog(`❌ Frame ${dropped} was DROPPED/LOST due to congestion!`);
+            
+            // Trigger Go-Back-N recovery after 2s
+            setTimeout(() => {
+                addLog(`⏱ Timeout expired for frame ${dropped}! Triggering Go-Back-N Recovery.`);
+                addLog(`🔄 Resending all unacknowledged frames starting from frame ${dropped}...`);
+                
+                // Clear all in-flight frames and reset sender to frame
+                inFlightFrames = [];
+                updateSimUI();
+            }, 1800);
+        });
+
+        document.getElementById('sim-reset').addEventListener('click', () => {
+            windowStart = 0;
+            inFlightFrames = [];
+            ackedFrames = [];
+            consoleEl.innerHTML = '';
+            addLog("Simulator reset. Ready to send frame 0.");
+            updateSimUI();
+        });
+
+        // Initial update
+        updateSimUI();
+
+        // ── Scroll Spy Navigation Highlighting ──
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(sec => {
+                const sectionTop = sec.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = sec.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                const link = item.querySelector('a');
+                if (link.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

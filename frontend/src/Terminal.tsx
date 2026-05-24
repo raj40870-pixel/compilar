@@ -34,6 +34,15 @@ export default function MyTerminal({ onInput, output, isPending }: MyTerminalPro
       cursorPosition.current = 0;
       historyIndex.current = -1;
       tempInput.current = '';
+
+      // Auto-focus terminal to allow typing immediately
+      setTimeout(() => {
+        if (term.current) {
+          term.current.focus();
+          const ta = termRef.current?.querySelector('textarea');
+          if (ta) ta.focus();
+        }
+      }, 50);
     }
   }, [isPending]);
 
@@ -265,12 +274,22 @@ export default function MyTerminal({ onInput, output, isPending }: MyTerminalPro
   return (
     <div 
       ref={termRef} 
+      onClick={() => {
+        if (term.current) {
+          term.current.focus();
+          const ta = termRef.current?.querySelector('textarea');
+          if (ta) {
+            ta.focus();
+          }
+        }
+      }}
       style={{ 
         height: '100%', 
         width: '100%', 
         background: '#1e1e1e', 
         padding: '8px', 
-        boxSizing: 'border-box' 
+        boxSizing: 'border-box',
+        cursor: 'text'
       }} 
     />
   );

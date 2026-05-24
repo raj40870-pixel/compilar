@@ -84,6 +84,26 @@ button {
 .nav-group { display: flex; align-items: center; gap: 10px; }
 .nav-right  { margin-left: auto; }
 
+/* ── Navbar Brand ── */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.nav-brand-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .lang-selector-group {
   display: flex;
   align-items: center;
@@ -189,6 +209,7 @@ button {
 .app-main {
   flex: 1;
   display: flex;
+  position: relative;
   min-height: 0;
   overflow: hidden;
 }
@@ -237,10 +258,64 @@ button {
   flex-direction: column;
   background: var(--bg-primary);
   padding: 14px;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   overflow: hidden;
 }
+
+/* ── Stdin Input Panel ── */
+.stdin-panel {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.stdin-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.15s;
+  text-align: left;
+}
+
+.stdin-toggle:hover { color: var(--text-1); }
+
+.stdin-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.stdin-textarea {
+  width: 100%;
+  resize: none;
+  background: var(--bg-secondary);
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  padding: 10px 12px;
+  outline: none;
+  tab-size: 2;
+}
+
+.stdin-textarea::placeholder { color: var(--text-3); }
 
 .output-area {
   flex: 1;
@@ -462,11 +537,16 @@ button {
     padding: 12px;
   }
 
+  .stdin-textarea { max-height: 80px; }
+
   .mobile-hidden { display: none !important; }
   .desktop-only  { display: none !important; }
 
   .navbar { gap: 8px; }
   .lang-label { display: none; }
+  
+  .file-explorer { position: absolute; z-index: 100; top: 0; left: 0; width: 100%; height: 100%; border-right: none; border-bottom: none; }
+  .tree-item-actions { display: flex !important; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -479,6 +559,7 @@ button {
   }
 
   .navbar { padding: 0 10px; gap: 6px; }
+  .nav-brand-name { display: none; }
 
   .btn-run { font-size: 0.82rem; padding: 4px 4px; letter-spacing: 0.8px; }
   .btn-download { padding: 5px 8px; }
@@ -693,4 +774,187 @@ button {
 .sel-handle:active .sel-handle-circle {
   transform: scale(1.18);
   box-shadow: 0 3px 14px rgba(236,72,153,0.8);
+}
+
+/* ── FILE EXPLORER ─────────────────────────────────────────── */
+.file-explorer {
+  width: 250px;
+  background-color: #252526;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  user-select: none;
+}
+.fe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #333;
+}
+.fe-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #ccc;
+  letter-spacing: 0.5px;
+}
+.fe-actions {
+  display: flex;
+  gap: 6px;
+}
+.fe-actions button {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fe-actions button:hover {
+  background: #3c3c3c;
+  color: #fff;
+}
+.fe-body {
+  padding: 6px 0;
+  flex: 1;
+}
+.tree-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #cccccc;
+}
+.tree-item:hover {
+  background-color: #2a2d2e;
+}
+.tree-item.active {
+  background-color: #37373d;
+  color: #ffffff;
+}
+.tree-item-left {
+  display: flex;
+  align-items: center;
+}
+.chevron {
+  width: 14px;
+  display: inline-flex;
+  margin-right: 4px;
+  color: #9ca3af;
+}
+.tree-item-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tree-item-actions {
+  display: none;
+  gap: 4px;
+}
+.tree-item:hover .tree-item-actions {
+  display: flex;
+}
+.tree-item-actions button {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+.tree-item-actions button:hover {
+  background: #4b4b4b;
+  color: #fff;
+}
+.tree-item-actions button.delete-btn:hover {
+  color: #f87171;
+}
+.tree-create-input {
+  padding: 4px 10px;
+}
+.tree-create-input input {
+  width: 100%;
+  background: #3c3c3c;
+  border: 1px solid #007acc;
+  color: #fff;
+  padding: 2px 4px;
+  font-size: 13px;
+  outline: none;
+  border-radius: 2px;
+}
+.app-main:has(.file-explorer) .editor-section {
+  border-left: none;
+}
+
+/* ── EDITOR TABS ────────────────────────────────────────────── */
+.editor-tabs-container {
+  display: flex;
+  height: 36px;
+  background-color: #252526;
+  overflow-x: auto;
+  border-bottom: 1px solid #333;
+}
+.editor-tabs-container::-webkit-scrollbar {
+  height: 2px;
+}
+.editor-tab {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px 0 14px;
+  background-color: #2d2d2d;
+  color: #9ca3af;
+  font-size: 13px;
+  cursor: pointer;
+  border-right: 1px solid #333;
+  border-top: 1px solid transparent;
+  min-width: 100px;
+  user-select: none;
+}
+.editor-tab:hover {
+  background-color: #2a2d2e;
+}
+.editor-tab.active {
+  background-color: #1e1e1e;
+  color: #fff;
+  border-top: 1px solid #007acc;
+}
+.editor-tab-close {
+  background: none;
+  border: none;
+  color: inherit;
+  margin-left: 8px;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+.editor-tab:hover .editor-tab-close,
+.editor-tab.active .editor-tab-close {
+  opacity: 1;
+}
+.editor-tab-close:hover {
+  background-color: #4b4b4b;
+}
+
+@media (min-width: 1025px) {
+  .desktop-hidden {
+    display: none !important;
+  }
 }

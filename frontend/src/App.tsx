@@ -4,6 +4,7 @@ import MyTerminal from './Terminal';
 import CustomSelect from './components/CustomSelect';
 import FileExplorer, { type FileNode } from './components/FileExplorer';
 import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp, Globe, Folder, X, FileCode, File, Sidebar } from 'lucide-react';
+import JSZip from 'jszip';
 
 const LANGUAGES = [
   { id: 'c', name: 'C', version: 'GCC 13' },
@@ -253,6 +254,28 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadWebProject = async () => {
+    const zip = new JSZip();
+    
+    // Add all web files to the zip
+    webFiles.forEach(file => {
+      if (file.type === 'file' && file.content) {
+        zip.file(file.name, file.content);
+      }
+    });
+    
+    // Generate and download the zip file
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'web-project.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleCopyOutput = useCallback(async () => {
     const text = rawOutputRef.current.trim();
     if (!text) return;
@@ -360,10 +383,16 @@ function App() {
             </button>
           )}
           {isWeb && (
-            <button onClick={handleOpenInChrome} className="btn-download" title="Open in Chrome">
-              <Globe size={16} />
-              <span className="desktop-only">Open in Chrome</span>
-            </button>
+            <>
+              <button onClick={handleDownloadWebProject} className="btn-download" title="Download web project">
+                <Download size={16} />
+                <span className="desktop-only">Download</span>
+              </button>
+              <button onClick={handleOpenInChrome} className="btn-download" title="Open in Chrome">
+                <Globe size={16} />
+                <span className="desktop-only">Open in Chrome</span>
+              </button>
+            </>
           )}
         </div>
       </nav>

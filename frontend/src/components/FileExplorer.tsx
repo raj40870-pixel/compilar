@@ -50,7 +50,7 @@ export default function FileExplorer({ files, setFiles, activeFileId, setActiveF
     });
   };
 
-  const getIcon = (name: string, isOpen: boolean = false) => {
+  const getIcon = (name: string) => {
     if (name.endsWith('.html')) return <FileCode size={14} color="#e34c26" />;
     if (name.endsWith('.css')) return <FileCode size={14} color="#264de4" />;
     if (name.endsWith('.js')) return <FileCode size={14} color="#f0db4f" />;

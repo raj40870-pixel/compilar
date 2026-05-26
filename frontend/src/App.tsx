@@ -3,7 +3,7 @@ import Editor from './components/Editor';
 import MyTerminal from './Terminal';
 import CustomSelect from './components/CustomSelect';
 import FileExplorer, { type FileNode } from './components/FileExplorer';
-import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp, Globe, Folder, X, FileCode, File, Sidebar } from 'lucide-react';
+import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp, Globe, X, FileCode, File, Sidebar } from 'lucide-react';
 import JSZip from 'jszip';
 
 const LANGUAGES = [

@@ -63,8 +63,36 @@ const DEFAULT_WEB_FILES: FileNode[] = [
 ];
 
 function App() {
-  const [language, setLanguage] = useState(LANGUAGES[4]); // default to JS
-  const [code, setCode] = useState(DEFAULT_CODE[LANGUAGES[4].id]);
+  const [language, setLanguage] = useState(() => {
+    try {
+      const saved = localStorage.getItem('compilar_language_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return LANGUAGES[4]; // default to JS
+  });
+  
+  const [codeMap, setCodeMap] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('compilar_codes_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { ...DEFAULT_CODE };
+  });
+
+  const code = codeMap[language.id] !== undefined ? codeMap[language.id] : DEFAULT_CODE[language.id];
+  
+  const setCode = (newCode: string) => {
+    setCodeMap(prev => {
+      const next = { ...prev, [language.id]: newCode };
+      localStorage.setItem('compilar_codes_v1', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    localStorage.setItem('compilar_language_v1', JSON.stringify(language));
+  }, [language]);
+
   const [terminalOutput, setTerminalOutput] = useState<{ text: string; id: number }>({ text: '', id: 0 });
   const [isPending, setIsPending] = useState(false);
   const [activeTab, setActiveTab] = useState<'files' | 'editor' | 'terminal'>('editor');
@@ -75,17 +103,17 @@ function App() {
   // Web Compiler States
   const [webFiles, setWebFiles] = useState<FileNode[]>(() => {
     try {
-      const saved = localStorage.getItem('compilar_web_files_v2');
+      const saved = localStorage.getItem('compilar_web_files_v3');
       return saved ? JSON.parse(saved) : DEFAULT_WEB_FILES;
     } catch {
       return DEFAULT_WEB_FILES;
     }
   });
   const [activeWebFileId, setActiveWebFileId] = useState<string>(() => {
-    return localStorage.getItem('compilar_active_web_file_v2') || 'index.html';
+    return localStorage.getItem('compilar_active_web_file_v3') || 'index.html';
   });
   const [openWebFiles, setOpenWebFiles] = useState<string[]>(() => {
-    const saved = localStorage.getItem('compilar_open_web_files_v2');
+    const saved = localStorage.getItem('compilar_open_web_files_v3');
     return saved ? JSON.parse(saved) : ['index.html', 'style.css', 'script.js'];
   });
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -99,10 +127,7 @@ function App() {
     isPendingRef.current = isPending;
   }, [isPending]);
 
-  // Save web files to local storage on change
-  useEffect(() => {
-    localStorage.setItem('compilar_web_files', JSON.stringify(webFiles));
-  }, [webFiles]);
+  // Save web files to local storage on change handled in later useEffects
 
   const writeToTerminal = (text: string) => {
     setTerminalOutput({ text, id: Date.now() + Math.random() });
@@ -226,9 +251,6 @@ function App() {
     const lang = LANGUAGES.find(l => l.id === langId);
     if (lang) {
       setLanguage(lang);
-      if (lang.id !== 'web') {
-        setCode(DEFAULT_CODE[lang.id]);
-      }
     }
   };
 

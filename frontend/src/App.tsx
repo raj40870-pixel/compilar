@@ -198,11 +198,11 @@ function App() {
       if (ws.readyState !== WebSocket.OPEN) {
         ws.close();
         writeToTerminal('\r\n\x1b[31mError: Cannot connect to backend.\x1b[0m\r\n');
-        writeToTerminal('\x1b[90mMake sure the backend is running: cd backend && npm start\x1b[0m\r\n');
+        writeToTerminal('\x1b[90mThe backend might be sleeping or unreachable. Please try again in a few seconds.\x1b[0m\r\n');
         setIsPending(false);
         isPendingRef.current = false;
       }
-    }, 5000);
+    }, 60000); // 60 seconds for Render cold starts
 
     ws.onopen = () => {
       clearTimeout(connectionTimer);

@@ -117,6 +117,7 @@ function App() {
     return saved ? JSON.parse(saved) : ['index.html', 'style.css', 'script.js'];
   });
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [previewContent, setPreviewContent] = useState<string>('');
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
 
   const rawOutputRef = useRef<string>('');
@@ -129,39 +130,49 @@ function App() {
 
   // Save web files to local storage on change handled in later useEffects
 
+  useEffect(() => {
+    if (language.id === 'web') {
+      const timer = setTimeout(() => {
+        let htmlFileNode = webFiles.find(f => f.id === activeWebFileId && f.name.endsWith('.html'));
+        if (!htmlFileNode) htmlFileNode = webFiles.find(f => f.name.endsWith('.html'));
+        
+        let htmlFile = htmlFileNode?.content || '<h1>No HTML file found!</h1>';
+        const parentFolderId = htmlFileNode?.parentId || null;
+
+        const cssFiles = webFiles.filter(f => f.name.endsWith('.css') && f.parentId === parentFolderId);
+        const jsFiles = webFiles.filter(f => f.name.endsWith('.js') && f.parentId === parentFolderId);
+        
+        for (const css of cssFiles) {
+          const linkTagRegex = new RegExp(`<link[^>]*href=["']${css.name}["'][^>]*>`, 'gi');
+          if (htmlFile.match(linkTagRegex)) {
+            htmlFile = htmlFile.replace(linkTagRegex, `<style>\n${css.content}\n</style>`);
+          }
+        }
+        for (const js of jsFiles) {
+          const scriptTagRegex = new RegExp(`<script[^>]*src=["']${js.name}["'][^>]*><\\/script>`, 'gi');
+          if (htmlFile.match(scriptTagRegex)) {
+            htmlFile = htmlFile.replace(scriptTagRegex, `<script>\n${js.content}\n</script>`);
+          }
+        }
+        
+        setPreviewContent(htmlFile);
+      }, 500); // Debounce preview update by 500ms
+      return () => clearTimeout(timer);
+    }
+  }, [webFiles, activeWebFileId, language.id]);
+
   const writeToTerminal = (text: string) => {
     setTerminalOutput({ text, id: Date.now() + Math.random() });
   };
 
   const generatePreviewUrl = useCallback(() => {
-    let htmlFileNode = webFiles.find(f => f.id === activeWebFileId && f.name.endsWith('.html'));
-    if (!htmlFileNode) htmlFileNode = webFiles.find(f => f.name.endsWith('.html'));
-    
-    let htmlFile = htmlFileNode?.content || '<h1>No HTML file found!</h1>';
-    const parentFolderId = htmlFileNode?.parentId || null;
-
-    const cssFiles = webFiles.filter(f => f.name.endsWith('.css') && f.parentId === parentFolderId);
-    const jsFiles = webFiles.filter(f => f.name.endsWith('.js') && f.parentId === parentFolderId);
-    
-    for (const css of cssFiles) {
-      const linkTagRegex = new RegExp(`<link[^>]*href=["']${css.name}["'][^>]*>`, 'gi');
-      if (htmlFile.match(linkTagRegex)) {
-        htmlFile = htmlFile.replace(linkTagRegex, `<style>${css.content}</style>`);
-      }
-    }
-    for (const js of jsFiles) {
-      const scriptTagRegex = new RegExp(`<script[^>]*src=["']${js.name}["'][^>]*><\\/script>`, 'gi');
-      if (htmlFile.match(scriptTagRegex)) {
-        htmlFile = htmlFile.replace(scriptTagRegex, `<script>${js.content}</script>`);
-      }
-    }
-    
-    const blob = new Blob([htmlFile], { type: 'text/html' });
+    // Generate blob url for downloading or fallback if needed
+    const blob = new Blob([previewContent], { type: 'text/html' });
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     const url = URL.createObjectURL(blob);
     setPreviewUrl(url);
     return url;
-  }, [webFiles]);
+  }, [previewContent, previewUrl]);
 
   const handleRun = () => {
     if (language.id === 'web') {
@@ -317,11 +328,7 @@ function App() {
   }, []);
 
   const handleOpenInChrome = () => {
-    let url = previewUrl;
-    if (!url) {
-      url = generatePreviewUrl();
-    }
-    window.open(url, '_blank');
+    window.open('/preview', '_blank');
   };
 
   useEffect(() => {
@@ -515,9 +522,9 @@ function App() {
               <div className="output-header-left">
                 <span className="output-header-dot" />
                 <span>{isWeb ? 'Live Preview' : 'Terminal'}</span>
-                {isWeb && previewUrl && (
+                {isWeb && (
                   <button 
-                    onClick={() => window.open(previewUrl, '_blank')}
+                    onClick={() => window.open('/preview', '_blank')}
                     style={{ background: 'none', border: 'none', color: '#61dafb', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 4px' }}
                     title="Open in Chrome"
                   >
@@ -534,10 +541,10 @@ function App() {
             </div>
             <div className="terminal-wrapper" style={{ background: isWeb ? '#fff' : '#1e1e1e' }}>
               {isWeb ? (
-                previewUrl ? (
-                  <iframe src={previewUrl} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Preview" sandbox="allow-scripts allow-same-origin" />
+                previewContent ? (
+                  <iframe srcDoc={previewContent} style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} title="Preview" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
                 ) : (
-                  <div style={{ padding: 20, color: '#333', textAlign: 'center', fontFamily: 'sans-serif' }}>Click RUN to preview your website.</div>
+                  <div style={{ padding: 20, color: '#333', textAlign: 'center', fontFamily: 'sans-serif' }}>Loading preview...</div>
                 )
               ) : (
                 <MyTerminal onInput={handleTerminalInput} output={terminalOutput} isPending={isPending} />

@@ -209,6 +209,12 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
     selChangeDisposer.current = editor.onDidChangeCursorSelection(() => {
       if (isMobileDevice() && !draggingHandle.current) {
         refreshHandles(editor);
+        setTimeout(() => {
+          const ed = (window as any).monacoEditor;
+          if (ed && !draggingHandle.current) {
+            showPopupMenu(ed);
+          }
+        }, 150);
       }
     });
 
@@ -266,14 +272,14 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
         // Immediately render handles, but do NOT show context menu yet
         refreshHandles(editor);
       }, 550);
-    }, { passive: true });
+    }, { passive: true, capture: true });
 
     container.addEventListener('pointermove', (e) => {
       if (!isMobileDevice()) return; // strict mobile check
       if (Math.abs(e.clientX - startX) > 12 || Math.abs(e.clientY - startY) > 12) {
         clearTimer();
       }
-    }, { passive: true });
+    }, { passive: true, capture: true });
 
     container.addEventListener('pointerup', (e) => {
       if (!isMobileDevice()) return; // strict mobile check
@@ -287,7 +293,7 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
         showPopupMenu(editor);
         refreshHandles(editor);
       }, 80);
-    }, { passive: true });
+    }, { passive: true, capture: true });
 
     container.addEventListener('contextmenu', (e) => e.preventDefault());
   };

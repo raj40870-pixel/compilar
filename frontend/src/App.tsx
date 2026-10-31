@@ -250,6 +250,7 @@ function App() {
   }, []);
 
   const getDynamicFileName = (langId: string, currentCode: string): string => {
+    // Only Java is strictly case-sensitive with class name matching the file name
     if (langId === 'java') {
       const publicMatch = currentCode.match(/public\s+(?:class|record|interface|enum)\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
       if (publicMatch && publicMatch[1]) return `${publicMatch[1]}.java`;
@@ -261,12 +262,6 @@ function App() {
       if (anyClassMatch && anyClassMatch[1]) return `${anyClassMatch[1]}.java`;
 
       return 'Main.java';
-    }
-
-    if (langId === 'csharp') {
-      const match = currentCode.match(/(?:public\s+)?class\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
-      if (match && match[1]) return `${match[1]}.cs`;
-      return 'main.cs';
     }
 
     return FILE_NAMES[langId] || `main.${EXT[langId] || 'txt'}`;

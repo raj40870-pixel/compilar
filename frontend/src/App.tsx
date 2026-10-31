@@ -146,7 +146,7 @@ function App() {
 
     if (window.innerWidth <= 1024) setActiveTab('terminal');
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://compiler-backend-1-2y9m.onrender.com' : 'http://localhost:3000');
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'https://compiler-backend-1-2y9m.onrender.com';
     const wsUrl = backendUrl.replace(/^http/, 'ws') + '/ws/run';
 
     if (wsRef.current) wsRef.current.close();

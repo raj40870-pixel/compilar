@@ -18,6 +18,7 @@ const LANGUAGES = [
   { id: 'rust', name: 'Rust', version: '1.75' },
   { id: 'bash', name: 'Bash', version: '5.2' },
   { id: 'typescript', name: 'TypeScript', version: 'Node 20' },
+  { id: 'ruby', name: 'Ruby', version: '3.1' },
 ];
 
 const FILE_NAMES: Record<string, string> = {
@@ -34,12 +35,14 @@ const FILE_NAMES: Record<string, string> = {
   rust: 'main.rs',
   bash: 'main.sh',
   typescript: 'main.ts',
+  ruby: 'main.rb',
 };
 
 const EXT: Record<string, string> = { 
   c: 'c', cpp: 'cpp', csharp: 'cs', go: 'go', java: 'java',
   javascript: 'js', kotlin: 'kt', lua: 'lua', php: 'php',
-  python: 'py', rust: 'rs', bash: 'sh', typescript: 'ts'
+  python: 'py', rust: 'rs', bash: 'sh', typescript: 'ts',
+  ruby: 'rb'
 };
 
 const DEFAULT_CODE: Record<string, string> = {
@@ -56,6 +59,7 @@ const DEFAULT_CODE: Record<string, string> = {
   rust: 'fn main() {\n    println!("Hello World");\n}',
   bash: 'echo "Hello World"',
   typescript: 'const message: string = "Hello World";\nconsole.log(message);',
+  ruby: 'puts "Hello World"',
 };
 
 function App() {

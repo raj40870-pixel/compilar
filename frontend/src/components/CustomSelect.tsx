@@ -118,7 +118,7 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
                   justifyContent: 'space-between',
                   gap: '12px',
                   width: '100%',
-                  padding: '7px 14px',
+                  padding: '6.5px 14px',
                   background: opt.id === value ? '#f0faf8' : '#ffffff',
                   border: 'none',
                   borderBottom: idx < options.length - 1 ? '1px solid #f2f2f2' : 'none',

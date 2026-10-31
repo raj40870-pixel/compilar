@@ -99,16 +99,14 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
             position: 'absolute',
             top: 'calc(100% + 6px)',
             left: 0,
-            minWidth: '170px',
+            minWidth: '175px',
             maxWidth: mobile ? '260px' : '220px',
-            maxHeight: 'min(70vh, 460px)',
             background: '#ffffff',
             border: '1px solid #e0e0e0',
             borderRadius: '8px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
             zIndex: 9999,
-            overflowY: 'auto',
-            overflowX: 'hidden',
+            overflow: 'hidden',
           }}>
             {options.map((opt, idx) => (
               <button
@@ -120,15 +118,15 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
                   justifyContent: 'space-between',
                   gap: '12px',
                   width: '100%',
-                  padding: '10px 14px',
+                  padding: '7px 14px',
                   background: opt.id === value ? '#f0faf8' : '#ffffff',
                   border: 'none',
-                  borderBottom: idx < options.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  borderBottom: idx < options.length - 1 ? '1px solid #f2f2f2' : 'none',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                   color: '#000000',
                   WebkitTextFillColor: '#000000',
-                  fontSize: '0.9rem',
+                  fontSize: '0.86rem',
                   fontWeight: opt.id === value ? 600 : 400,
                   textAlign: 'left',
                 } as any}
@@ -139,14 +137,14 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
                   {opt.name}
                 </span>
                 <div style={{
-                  width: '18px', height: '18px',
+                  width: '16px', height: '16px',
                   borderRadius: '50%',
                   border: `2px solid ${opt.id === value ? '#00897b' : '#aaaaaa'}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0,
                 }}>
                   {opt.id === value && (
-                    <div style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#00897b' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00897b' }} />
                   )}
                 </div>
               </button>

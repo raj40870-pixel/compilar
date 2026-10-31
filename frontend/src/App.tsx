@@ -216,12 +216,11 @@ function App() {
   };
 
   const handleDownload = () => {
-    const ext = EXT[language.id] || 'txt';
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = FILE_NAMES[language.id] || `main.${ext}`;
+    a.download = currentFileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -250,7 +249,30 @@ function App() {
     return () => { wsRef.current?.close(); };
   }, []);
 
-  const currentFileName = FILE_NAMES[language.id] || `main.${EXT[language.id] || 'txt'}`;
+  const getDynamicFileName = (langId: string, currentCode: string): string => {
+    if (langId === 'java') {
+      const publicMatch = currentCode.match(/public\s+(?:class|record|interface|enum)\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
+      if (publicMatch && publicMatch[1]) return `${publicMatch[1]}.java`;
+
+      const mainClassMatch = currentCode.match(/class\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\{[^}]*static\s+void\s+main/s);
+      if (mainClassMatch && mainClassMatch[1]) return `${mainClassMatch[1]}.java`;
+
+      const anyClassMatch = currentCode.match(/(?:class|record|interface|enum)\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
+      if (anyClassMatch && anyClassMatch[1]) return `${anyClassMatch[1]}.java`;
+
+      return 'Main.java';
+    }
+
+    if (langId === 'csharp') {
+      const match = currentCode.match(/(?:public\s+)?class\s+([A-Za-z_$][A-Za-z0-9_$]*)/);
+      if (match && match[1]) return `${match[1]}.cs`;
+      return 'main.cs';
+    }
+
+    return FILE_NAMES[langId] || `main.${EXT[langId] || 'txt'}`;
+  };
+
+  const currentFileName = getDynamicFileName(language.id, code);
 
   return (
     <div className="app-root">

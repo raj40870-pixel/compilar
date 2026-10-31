@@ -35,7 +35,7 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
   const getMonacoLanguage = (lang: string) => {
     const map: Record<string, string> = {
       c: 'c', cpp: 'cpp', java: 'java', javascript: 'javascript', python: 'python',
-      typescript: 'typescript', csharp: 'csharp', go: 'go', php: 'php', rust: 'rust',
+      typescript: 'typescript', csharp: 'csharp', go: 'go', php: 'php', rust: 'rust', kotlin: 'kotlin', lua: 'lua', bash: 'shell', sh: 'shell',
       html: 'html', css: 'css', js: 'javascript'
     };
     return map[lang] ?? 'javascript';

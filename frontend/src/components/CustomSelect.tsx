@@ -99,59 +99,59 @@ const CustomSelect = ({ options, value, onChange }: CustomSelectProps) => {
             position: 'absolute',
             top: 'calc(100% + 6px)',
             left: 0,
-            minWidth: '160px',
-            maxWidth: mobile ? '250px' : undefined,
-            maxHeight: mobile ? '50vh' : undefined,
+            minWidth: '170px',
+            maxWidth: mobile ? '260px' : '220px',
+            maxHeight: 'min(70vh, 460px)',
             background: '#ffffff',
             border: '1px solid #e0e0e0',
             borderRadius: '8px',
             boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
             zIndex: 9999,
-            overflowY: mobile ? 'auto' : 'hidden',
+            overflowY: 'auto',
             overflowX: 'hidden',
           }}>
-              {options.map((opt, idx) => (
-                <button
-                  key={opt.id}
-                  onClick={() => { onChange(opt.id); setOpen(false); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '12px',
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: opt.id === value ? '#f0faf8' : '#ffffff',
-                    border: 'none',
-                    borderBottom: idx < options.length - 1 ? '1px solid #f0f0f0' : 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    color: '#000000',
-                    WebkitTextFillColor: '#000000',
-                    fontSize: '0.95rem',
-                    fontWeight: opt.id === value ? 600 : 400,
-                    textAlign: 'left',
-                  } as any}
-                  onMouseEnter={e => (e.currentTarget.style.background = opt.id === value ? '#e6f7f5' : '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = opt.id === value ? '#f0faf8' : '#ffffff')}
-                >
-                  <span style={{ color: '#000000', WebkitTextFillColor: '#000000' } as any}>
-                    {opt.name}
-                  </span>
-                  <div style={{
-                    width: '18px', height: '18px',
-                    borderRadius: '50%',
-                    border: `2px solid ${opt.id === value ? '#00897b' : '#aaaaaa'}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    {opt.id === value && (
-                      <div style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#00897b' }} />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            {options.map((opt, idx) => (
+              <button
+                key={opt.id}
+                onClick={() => { onChange(opt.id); setOpen(false); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: opt.id === value ? '#f0faf8' : '#ffffff',
+                  border: 'none',
+                  borderBottom: idx < options.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  color: '#000000',
+                  WebkitTextFillColor: '#000000',
+                  fontSize: '0.9rem',
+                  fontWeight: opt.id === value ? 600 : 400,
+                  textAlign: 'left',
+                } as any}
+                onMouseEnter={e => (e.currentTarget.style.background = opt.id === value ? '#e6f7f5' : '#f9f9f9')}
+                onMouseLeave={e => (e.currentTarget.style.background = opt.id === value ? '#f0faf8' : '#ffffff')}
+              >
+                <span style={{ color: '#000000', WebkitTextFillColor: '#000000' } as any}>
+                  {opt.name}
+                </span>
+                <div style={{
+                  width: '18px', height: '18px',
+                  borderRadius: '50%',
+                  border: `2px solid ${opt.id === value ? '#00897b' : '#aaaaaa'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {opt.id === value && (
+                    <div style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#00897b' }} />
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </>
       )}
     </div>

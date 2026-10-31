@@ -12,7 +12,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const runnerHelper_1 = require("./runnerHelper");
 const RUNS_DIR = path_1.default.resolve(__dirname, '..', '..', 'bin', 'runs');
 // Spawns process directly and captures output to completion
-function executeProcess(cmd, args, cwd, stdinText = '', timeoutMs = 10000) {
+function executeProcess(cmd, args, cwd, stdinText = '', timeoutMs = 15000) {
     return new Promise((resolve) => {
         const resolvedCmd = (0, runnerHelper_1.resolveCmd)(cmd);
         const useShell = process.platform === 'win32' && (resolvedCmd.endsWith('.cmd') || resolvedCmd.endsWith('.bat'));
@@ -66,7 +66,7 @@ class CodeRunnerService {
                 runCmd = 'echo $CODE_B64 | base64 -d > main.c && gcc -O2 -Wall main.c -o main && ./main';
                 break;
             case 'cpp':
-                runCmd = 'echo $CODE_B64 | base64 -d > main.cpp && g++ -O2 -Wall main.cpp -o main && ./main';
+                runCmd = 'echo $CODE_B64 | base64 -d > main.cpp && g++ -std=c++17 -O0 -Wall main.cpp -o main && ./main';
                 break;
             case 'python':
                 runCmd = 'echo $CODE_B64 | base64 -d > main.py && python3 -u main.py';
@@ -112,6 +112,17 @@ class CodeRunnerService {
             case 'rust':
                 runCmd = 'echo $CODE_B64 | base64 -d > main.rs && rustc main.rs -o main && ./main';
                 break;
+            case 'kotlin':
+                runCmd = 'echo $CODE_B64 | base64 -d > main.kt && kotlinc main.kt -include-runtime -d main.jar && java -jar main.jar';
+                break;
+            case 'lua':
+                runCmd = 'echo $CODE_B64 | base64 -d > main.lua && lua main.lua';
+                break;
+            case 'bash':
+            case 'sh':
+            case 'shell':
+                runCmd = 'echo $CODE_B64 | base64 -d > main.sh && bash main.sh';
+                break;
             default:
                 return { stdout: '', stderr: `Unsupported language in Docker: ${lang}` };
         }
@@ -128,10 +139,9 @@ class CodeRunnerService {
             'sh',
             '-c',
             runCmd
-        ], os_1.default.tmpdir(), input, 12000 // 12 second limit
-        );
+        ], os_1.default.tmpdir(), input, 15000);
         if (result.timedOut) {
-            return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+            return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
         }
         return { stdout: result.stdout, stderr: result.stderr };
     }
@@ -148,56 +158,56 @@ class CodeRunnerService {
                 case 'c': {
                     const srcPath = path_1.default.join(runDir, 'main.c');
                     fs_1.default.writeFileSync(srcPath, (0, runnerHelper_1.injectStdoutUnbuffering)(code, 'c'));
-                    const compile = await executeProcess('gcc', ['-std=c11', '-O2', '-Wall', '-o', binaryPath, 'main.c'], runDir);
+                    const compile = await executeProcess('gcc', ['-std=c11', '-O2', '-Wall', '-o', binaryPath, 'main.c'], runDir, '', 15000);
                     if (compile.code !== 0) {
                         return { stdout: '', stderr: compile.stderr || compile.stdout };
                     }
-                    const run = await executeProcess(binaryPath, [], runDir, input);
+                    const run = await executeProcess(binaryPath, [], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'cpp': {
                     const srcPath = path_1.default.join(runDir, 'main.cpp');
                     fs_1.default.writeFileSync(srcPath, (0, runnerHelper_1.injectStdoutUnbuffering)(code, 'cpp'));
-                    const compile = await executeProcess('g++', ['-std=c++14', '-O2', '-Wall', '-o', binaryPath, 'main.cpp'], runDir);
+                    const compile = await executeProcess('g++', ['-std=c++17', '-O0', '-Wall', '-o', binaryPath, 'main.cpp'], runDir, '', 20000);
                     if (compile.code !== 0) {
                         return { stdout: '', stderr: compile.stderr || compile.stdout };
                     }
-                    const run = await executeProcess(binaryPath, [], runDir, input);
+                    const run = await executeProcess(binaryPath, [], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'python': {
                     const srcPath = path_1.default.join(runDir, 'main.py');
                     fs_1.default.writeFileSync(srcPath, code);
                     const pyCmd = (0, runnerHelper_1.getPythonCmd)();
-                    const run = await executeProcess(pyCmd, ['-u', 'main.py'], runDir, input);
+                    const run = await executeProcess(pyCmd, ['-u', 'main.py'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'java': {
                     const className = (0, runnerHelper_1.getJavaClassName)(code);
                     const srcPath = path_1.default.join(runDir, `${className}.java`);
                     fs_1.default.writeFileSync(srcPath, code);
-                    const compile = await executeProcess('javac', [`${className}.java`], runDir);
+                    const compile = await executeProcess('javac', [`${className}.java`], runDir, '', 20000);
                     if (compile.code !== 0) {
                         return { stdout: '', stderr: compile.stderr || compile.stdout };
                     }
-                    const run = await executeProcess('java', [className], runDir, input);
+                    const run = await executeProcess('java', [className], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'javascript':
                 case 'node': {
                     const srcPath = path_1.default.join(runDir, 'main.js');
                     fs_1.default.writeFileSync(srcPath, code);
-                    const run = await executeProcess('node', ['main.js'], runDir, input);
+                    const run = await executeProcess('node', ['main.js'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'typescript': {
@@ -227,15 +237,15 @@ class CodeRunnerService {
                         files: ['main.ts']
                     });
                     fs_1.default.writeFileSync(path_1.default.join(runDir, 'tsconfig.json'), tscfg);
-                    const compile = await executeProcess('node', [localTsc, '--project', path_1.default.join(runDir, 'tsconfig.json')], runDir);
+                    const compile = await executeProcess('node', [localTsc, '--project', path_1.default.join(runDir, 'tsconfig.json')], runDir, '', 20000);
                     if (compile.code !== 0) {
                         if (!fs_1.default.existsSync(path_1.default.join(runDir, 'main.js'))) {
                             return { stdout: '', stderr: compile.stderr || compile.stdout };
                         }
                     }
-                    const run = await executeProcess('node', ['main.js'], runDir, input);
+                    const run = await executeProcess('node', ['main.js'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'csharp': {
@@ -243,21 +253,21 @@ class CodeRunnerService {
                     fs_1.default.writeFileSync(csprojPath, runnerHelper_1.CS_PROJ_CONTENT);
                     const programPath = path_1.default.join(runDir, 'Program.cs');
                     fs_1.default.writeFileSync(programPath, code);
-                    const restore = await executeProcess('dotnet', ['restore'], runDir);
+                    const restore = await executeProcess('dotnet', ['restore'], runDir, '', 25000);
                     if (restore.code !== 0) {
                         return { stdout: '', stderr: restore.stderr || restore.stdout };
                     }
-                    const run = await executeProcess('dotnet', ['run', '--project', 'main.csproj', '--configuration', 'Release'], runDir, input);
+                    const run = await executeProcess('dotnet', ['run', '--project', 'main.csproj', '--configuration', 'Release'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'go': {
                     const srcPath = path_1.default.join(runDir, 'main.go');
                     fs_1.default.writeFileSync(srcPath, code);
-                    const run = await executeProcess('go', ['run', 'main.go'], runDir, input);
+                    const run = await executeProcess('go', ['run', 'main.go'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'php': {
@@ -277,21 +287,57 @@ class CodeRunnerService {
                             return { stdout: '', stderr: comp.stderr || comp.stdout };
                         }
                     }
-                    const run = await executeProcess('php', ['main.php'], runDir, input);
+                    const run = await executeProcess('php', ['main.php'], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'rust': {
                     const srcPath = path_1.default.join(runDir, 'main.rs');
                     fs_1.default.writeFileSync(srcPath, code);
-                    const compile = await executeProcess('rustc', ['main.rs', '-o', binaryPath], runDir);
+                    const rustArgs = process.platform === 'win32'
+                        ? ['main.rs', '--target', 'x86_64-pc-windows-gnu', '-o', binaryPath]
+                        : ['main.rs', '-o', binaryPath];
+                    const compile = await executeProcess('rustc', rustArgs, runDir, '', 25000);
                     if (compile.code !== 0) {
                         return { stdout: '', stderr: compile.stderr || compile.stdout };
                     }
-                    const run = await executeProcess(binaryPath, [], runDir, input);
+                    const run = await executeProcess(binaryPath, [], runDir, input, 15000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (10s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+                    return { stdout: run.stdout, stderr: run.stderr };
+                }
+                case 'kotlin': {
+                    const srcPath = path_1.default.join(runDir, 'main.kt');
+                    fs_1.default.writeFileSync(srcPath, code);
+                    const jarPath = path_1.default.join(runDir, 'main.jar');
+                    const compile = await executeProcess('kotlinc', ['main.kt', '-include-runtime', '-d', jarPath], runDir, '', 30000);
+                    if (compile.code !== 0) {
+                        return { stdout: '', stderr: compile.stderr || compile.stdout };
+                    }
+                    const run = await executeProcess('java', ['-jar', jarPath], runDir, input, 15000);
+                    if (run.timedOut)
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+                    return { stdout: run.stdout, stderr: run.stderr };
+                }
+                case 'lua': {
+                    const srcPath = path_1.default.join(runDir, 'main.lua');
+                    fs_1.default.writeFileSync(srcPath, code);
+                    const luaCmd = (0, runnerHelper_1.compilerExists)('lua') ? 'lua' : ((0, runnerHelper_1.compilerExists)('lua5.4') ? 'lua5.4' : 'lua');
+                    const run = await executeProcess(luaCmd, ['main.lua'], runDir, input, 15000);
+                    if (run.timedOut)
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+                    return { stdout: run.stdout, stderr: run.stderr };
+                }
+                case 'bash':
+                case 'sh':
+                case 'shell': {
+                    const srcPath = path_1.default.join(runDir, 'main.sh');
+                    fs_1.default.writeFileSync(srcPath, code);
+                    const bashCmd = (0, runnerHelper_1.compilerExists)('bash') ? 'bash' : 'sh';
+                    const run = await executeProcess(bashCmd, ['main.sh'], runDir, input, 15000);
+                    if (run.timedOut)
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 default:

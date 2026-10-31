@@ -12,7 +12,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const runnerHelper_1 = require("./runnerHelper");
 const RUNS_DIR = path_1.default.resolve(__dirname, '..', '..', 'bin', 'runs');
 // Spawns process directly and captures output to completion
-function executeProcess(cmd, args, cwd, stdinText = '', timeoutMs = 15000) {
+function executeProcess(cmd, args, cwd, stdinText = '', timeoutMs = 20000) {
     return new Promise((resolve) => {
         const resolvedCmd = (0, runnerHelper_1.resolveCmd)(cmd);
         const useShell = process.platform === 'win32' && (resolvedCmd.endsWith('.cmd') || resolvedCmd.endsWith('.bat'));
@@ -85,7 +85,7 @@ class CodeRunnerService {
                 break;
             case 'csharp': {
                 const projB64 = Buffer.from(runnerHelper_1.CS_PROJ_CONTENT).toString('base64');
-                runCmd = `echo ${projB64} | base64 -d > main.csproj && echo $CODE_B64 | base64 -d > Program.cs && dotnet restore && dotnet run --configuration Release`;
+                runCmd = `echo ${projB64} | base64 -d > main.csproj && echo $CODE_B64 | base64 -d > Program.cs && dotnet restore && dotnet run --no-restore --configuration Release`;
                 break;
             }
             case 'go':
@@ -113,7 +113,7 @@ class CodeRunnerService {
                 runCmd = 'echo $CODE_B64 | base64 -d > main.rs && rustc main.rs -o main && ./main';
                 break;
             case 'kotlin':
-                runCmd = 'echo $CODE_B64 | base64 -d > main.kt && kotlinc main.kt -include-runtime -d main.jar && java -jar main.jar';
+                runCmd = 'echo $CODE_B64 | base64 -d > main.kt && kotlinc main.kt -d . && kotlin MainKt';
                 break;
             case 'lua':
                 runCmd = 'echo $CODE_B64 | base64 -d > main.lua && lua main.lua';
@@ -139,9 +139,9 @@ class CodeRunnerService {
             'sh',
             '-c',
             runCmd
-        ], os_1.default.tmpdir(), input, 15000);
+        ], os_1.default.tmpdir(), input, 30000);
         if (result.timedOut) {
-            return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+            return { stdout: '', stderr: '⏱  Execution Timed Out (30s)' };
         }
         return { stdout: result.stdout, stderr: result.stderr };
     }
@@ -253,13 +253,13 @@ class CodeRunnerService {
                     fs_1.default.writeFileSync(csprojPath, runnerHelper_1.CS_PROJ_CONTENT);
                     const programPath = path_1.default.join(runDir, 'Program.cs');
                     fs_1.default.writeFileSync(programPath, code);
-                    const restore = await executeProcess('dotnet', ['restore'], runDir, '', 25000);
+                    const restore = await executeProcess('dotnet', ['restore'], runDir, '', 30000);
                     if (restore.code !== 0) {
                         return { stdout: '', stderr: restore.stderr || restore.stdout };
                     }
-                    const run = await executeProcess('dotnet', ['run', '--project', 'main.csproj', '--configuration', 'Release'], runDir, input, 15000);
+                    const run = await executeProcess('dotnet', ['run', '--project', 'main.csproj', '--no-restore'], runDir, input, 25000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (25s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'go': {
@@ -310,14 +310,13 @@ class CodeRunnerService {
                 case 'kotlin': {
                     const srcPath = path_1.default.join(runDir, 'main.kt');
                     fs_1.default.writeFileSync(srcPath, code);
-                    const jarPath = path_1.default.join(runDir, 'main.jar');
-                    const compile = await executeProcess('kotlinc', ['main.kt', '-include-runtime', '-d', jarPath], runDir, '', 30000);
+                    const compile = await executeProcess('kotlinc', ['main.kt', '-d', '.'], runDir, '', 30000);
                     if (compile.code !== 0) {
                         return { stdout: '', stderr: compile.stderr || compile.stdout };
                     }
-                    const run = await executeProcess('java', ['-jar', jarPath], runDir, input, 15000);
+                    const run = await executeProcess('kotlin', ['MainKt'], runDir, input, 20000);
                     if (run.timedOut)
-                        return { stdout: '', stderr: '⏱  Execution Timed Out (15s)' };
+                        return { stdout: '', stderr: '⏱  Execution Timed Out (20s)' };
                     return { stdout: run.stdout, stderr: run.stderr };
                 }
                 case 'lua': {

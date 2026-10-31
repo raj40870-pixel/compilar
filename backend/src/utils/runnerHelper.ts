@@ -12,10 +12,7 @@ const EXTRA_PATHS = [
   // Node.js
   'C:\\Program Files\\nodejs',
 
-  // Java (Eclipse Adoptium / Temurin JDK / Amazon Corretto / Microsoft)
-  'C:\\Program Files\\Amazon Corretto\\jdk21.0.12_8\\bin',
-  'C:\\Program Files\\Microsoft\\jdk-21.0.12.8-hotspot\\bin',
-  'C:\\Program Files\\Common Files\\Oracle\\Java\\javapath',
+  // Java (Eclipse Adoptium / Temurin JDK)
   'C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.18.8-hotspot\\bin',
   'C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.0.35-hotspot\\bin',
   'C:\\Program Files\\Eclipse Adoptium\\jdk-21\\bin',
@@ -23,10 +20,9 @@ const EXTRA_PATHS = [
   'C:\\Program Files\\Java\\jdk-21\\bin',
   'C:\\Program Files\\Java\\jdk-17.0.0\\bin',
 
-  // C / C++ — Dev-C++ MinGW64 (actual install path on this system)
+  // C / C++ — Dev-C++ MinGW64
   'C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin',
   'C:\\Program Files\\Dev-Cpp\\MinGW64\\bin',
-  'C:\\TDM-GCC-64\\bin',
   'C:\\MinGW\\bin',
   'C:\\msys64\\mingw64\\bin',
   'C:\\msys64\\usr\\bin',
@@ -39,19 +35,14 @@ const EXTRA_PATHS = [
   'C:\\Python311',
   'C:\\Python310',
 
-  // Go — standard locations
+  // Go
   'C:\\Program Files\\Go\\bin',
-  'C:\\Go\\bin',
   `C:\\Users\\${USERNAME}\\go\\bin`,
-  `C:\\Users\\${USERNAME}\\AppData\\Local\\go\\bin`,
 
-  // Rust — cargo bin
+  // Rust
   `C:\\Users\\${USERNAME}\\.cargo\\bin`,
 
-  // PHP — WinGet installed path (PHP 8.4 on this system)
-  `C:\\Users\\${USERNAME}\\AppData\\Local\\Microsoft\\WinGet\\Packages\\PHP.PHP.8.4_Microsoft.Winget.Source_8wekyb3d8bbwe`,
-  `C:\\Users\\${USERNAME}\\AppData\\Local\\Microsoft\\WinGet\\Packages\\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe`,
-  // PHP — legacy / manual install paths
+  // PHP
   'C:\\php',
   'C:\\tools\\php84',
   'C:\\tools\\php83',
@@ -76,6 +67,11 @@ export const BASE_ENV: NodeJS.ProcessEnv = {
   PATH: ENRICHED_PATH,
   PYTHONIOENCODING: 'utf-8',
   PYTHONUNBUFFERED: '1',
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1',
+  DOTNET_NOLOGO: '1',
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1',
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: '0',
+  JAVA_OPTS: '-Xmx384m -Xms64m -XX:+TieredCompilation -XX:TieredStopAtLevel=1',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

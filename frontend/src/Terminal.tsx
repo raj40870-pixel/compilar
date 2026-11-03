@@ -66,6 +66,19 @@ export default function MyTerminal({ onInput, output, isPending }: MyTerminalPro
     const fitAddon = new FitAddon();
     term.current.loadAddon(fitAddon);
     term.current.open(termRef.current);
+
+    const setupXtermTextarea = () => {
+      const ta = termRef.current?.querySelector('textarea');
+      if (ta) {
+        if (!ta.id) ta.id = 'xterm-terminal-input';
+        if (!ta.name) ta.name = 'terminal-input';
+        ta.setAttribute('autocomplete', 'off');
+        ta.setAttribute('aria-label', 'Terminal Input');
+      }
+    };
+    setupXtermTextarea();
+    setTimeout(setupXtermTextarea, 50);
+    setTimeout(setupXtermTextarea, 250);
     
     setTimeout(() => {
       try {

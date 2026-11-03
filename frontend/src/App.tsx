@@ -249,6 +249,33 @@ function App() {
     return () => { wsRef.current?.close(); };
   }, []);
 
+  // Ensure all form elements (including hidden textareas injected by Monaco & xterm) have id and name
+  useEffect(() => {
+    const ensureIdsAndNames = () => {
+      document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select').forEach((el, i) => {
+        if (!el.id && !el.name) {
+          const generated = el.className.includes('xterm')
+            ? 'terminal-input'
+            : el.className.includes('inputarea')
+            ? 'code-editor'
+            : `field-${i + 1}`;
+          el.id = generated;
+          el.name = generated;
+          if (!el.getAttribute('autocomplete')) el.setAttribute('autocomplete', 'off');
+        } else if (!el.id) {
+          el.id = el.name;
+        } else if (!el.name) {
+          el.name = el.id;
+        }
+      });
+    };
+
+    ensureIdsAndNames();
+    const observer = new MutationObserver(ensureIdsAndNames);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   const getDynamicFileName = (langId: string, currentCode: string): string => {
     // Only Java is strictly case-sensitive with class name matching the file name
     if (langId === 'java') {
@@ -346,11 +373,14 @@ function App() {
             </button>
             {stdinOpen && (
               <textarea
+                id="program-stdin"
+                name="program-stdin"
                 className="stdin-textarea"
                 placeholder="Enter input for your program here, each value on a new line…"
                 value={stdinValue}
                 onChange={e => setStdinValue(e.target.value)}
                 spellCheck={false}
+                autoComplete="off"
               />
             )}
           </div>

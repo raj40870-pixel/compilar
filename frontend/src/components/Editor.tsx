@@ -151,6 +151,19 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
 
   // ── Monaco mount ─────────────────────────────────────────────────
   const handleEditorDidMount: OnMount = (editor, monaco) => {
+    const setupMonacoTextarea = () => {
+      const dom = editor.getDomNode();
+      const ta = dom?.querySelector('textarea');
+      if (ta) {
+        if (!ta.id) ta.id = 'monaco-code-editor';
+        if (!ta.name) ta.name = 'code-editor';
+        ta.setAttribute('autocomplete', 'off');
+        ta.setAttribute('aria-label', 'Code Editor');
+      }
+    };
+    setupMonacoTextarea();
+    setTimeout(setupMonacoTextarea, 50);
+    setTimeout(setupMonacoTextarea, 300);
     // Theme
     monaco.editor.defineTheme('custom-dark', {
       base: 'vs-dark', inherit: true, rules: [],

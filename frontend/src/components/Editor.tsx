@@ -204,24 +204,6 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
       quickSuggestions: true,
       suggestOnTriggerCharacters: true,
       showUnused: false,
-      autoClosingQuotes: 'never',
-      autoClosingBrackets: 'never',
-    });
-
-    // Fix UK / US layout mismatch (when Shift + Quote types '@' instead of '"')
-    editor.onKeyDown((e: any) => {
-      const b = e.browserEvent as KeyboardEvent;
-      if (b && b.shiftKey) {
-        if (b.code === 'Quote' && b.key === '@') {
-          e.preventDefault();
-          e.stopPropagation();
-          editor.trigger('keyboard', 'type', { text: '"' });
-        } else if (b.code === 'Digit2' && b.key === '"') {
-          e.preventDefault();
-          e.stopPropagation();
-          editor.trigger('keyboard', 'type', { text: '@' });
-        }
-      }
     });
 
     // Hide Monaco's own keyboard button

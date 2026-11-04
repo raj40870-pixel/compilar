@@ -64,43 +64,6 @@ export default function MyTerminal({ onInput, output, isPending }: MyTerminalPro
     });
     
     const fitAddon = new FitAddon();
-    
-    // Remap Shift+Quote to " and Shift+Digit2 to @ in case layout is UK
-    term.current.attachCustomKeyEventHandler((e: KeyboardEvent) => {
-      if (e.type === 'keydown' && e.shiftKey) {
-        if (e.code === 'Quote' && e.key === '@') {
-          e.preventDefault();
-          if (isPendingRef.current && term.current) {
-            const left = lineBuffer.current.slice(0, cursorPosition.current);
-            const right = lineBuffer.current.slice(cursorPosition.current);
-            lineBuffer.current = left + '"' + right;
-            cursorPosition.current += 1;
-            term.current.write('"');
-            if (right) {
-              term.current.write(right);
-              for (let i = 0; i < right.length; i++) term.current.write('\x1b[D');
-            }
-          }
-          return false;
-        }
-        if (e.code === 'Digit2' && e.key === '"') {
-          e.preventDefault();
-          if (isPendingRef.current && term.current) {
-            const left = lineBuffer.current.slice(0, cursorPosition.current);
-            const right = lineBuffer.current.slice(cursorPosition.current);
-            lineBuffer.current = left + '@' + right;
-            cursorPosition.current += 1;
-            term.current.write('@');
-            if (right) {
-              term.current.write(right);
-              for (let i = 0; i < right.length; i++) term.current.write('\x1b[D');
-            }
-          }
-          return false;
-        }
-      }
-      return true;
-    });
     term.current.loadAddon(fitAddon);
     term.current.open(termRef.current);
 

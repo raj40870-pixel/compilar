@@ -307,7 +307,7 @@ function App() {
             <path d="M23 11L27 16L23 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M19 8L13 24" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
-          <span className="nav-brand-name">Compilar</span>
+          <span className="nav-brand-name">Compiler</span>
         </div>
         
         <div className="nav-group">

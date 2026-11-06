@@ -332,30 +332,6 @@
   display: none !important;
 }
 
-.tab-app-promo {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  color: #e9d5ff !important;
-  font-size: 0.82rem;
-  font-weight: 600;
-  border-bottom: 2px solid #863bff !important;
-  background: rgba(134, 59, 255, 0.12) !important;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.mobile-badge-indus {
-  font-size: 0.65rem;
-  padding: 1px 5px;
-  border-radius: 999px;
-  background: rgba(234, 179, 8, 0.25);
-  color: #fde047;
-  font-weight: 700;
-}
-
 @media (max-width: 1024px) {
   .ide-statusbar.with-keybar {
     margin-bottom: 46px !important; /* Lifts neatly above the mobile keyboard bar */

@@ -4,7 +4,7 @@ import MyTerminal from './Terminal';
 import CustomSelect from './components/CustomSelect';
 import StatusBar from './components/StatusBar';
 import AppDrawer from './components/AppDrawer';
-import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp, Smartphone } from 'lucide-react';
+import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp } from 'lucide-react';
 
 const LANGUAGES = [
   { id: 'c', name: 'C', version: 'GCC 13' },
@@ -342,11 +342,6 @@ function App() {
         <button className={activeTab === 'terminal' ? 'active' : ''} onClick={() => setActiveTab('terminal')}>
           <span className="tab-icon">$</span> Terminal
           {isPending && <span className="tab-running-dot" />}
-        </button>
-        <button type="button" className="tab-app-promo" onClick={() => setIsDrawerOpen(true)} title="Official Code Editor Android App on Indus Appstore">
-          <Smartphone size={13} style={{ marginRight: 3, color: '#c084fc' }} />
-          <span>Android App</span>
-          <span className="mobile-badge-indus">🇮🇳 Indus</span>
         </button>
       </div>
 

@@ -1,0 +1,326 @@
+/* ═══════════════════════════════════════════════════════════
+   IDE STATUS BAR & SLIDE-IN APP SHOWCASE
+   (Clean, Professional, Non-Intrusive Bottom Representation)
+═══════════════════════════════════════════════════════════ */
+
+/* ── STATUS BAR ── */
+.ide-statusbar {
+  height: 26px;
+  background: #0d0d11;
+  border-top: 1px solid #1c1c24;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 0.72rem;
+  color: #71717a;
+  user-select: none;
+  flex-shrink: 0;
+  z-index: 50;
+  font-family: var(--font-sans);
+}
+
+.statusbar-left,
+.statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusbar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #8e8e99;
+}
+
+.statusbar-lang {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.statusbar-dim {
+  color: #52525b;
+  font-size: 0.68rem;
+}
+
+.statusbar-separator {
+  color: #27272a;
+  font-size: 0.75rem;
+}
+
+/* ── APP TRIGGER IN STATUS BAR ── */
+.statusbar-app-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(134, 59, 255, 0.08);
+  border: 1px solid rgba(134, 59, 255, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: #d8b4fe;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 20px;
+}
+
+.statusbar-app-trigger:hover {
+  background: rgba(134, 59, 255, 0.2);
+  border-color: #a855f7;
+  color: #ffffff;
+}
+
+.statusbar-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+.statusbar-app-badge {
+  font-size: 0.64rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(234, 179, 8, 0.18);
+  color: #fde047;
+  font-weight: 600;
+}
+
+.statusbar-ext-icon {
+  opacity: 0.7;
+}
+
+/* ── SLIDE-IN APP DRAWER ── */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  animation: drawerFadeIn 0.2s ease-out;
+}
+
+@keyframes drawerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawer-panel {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  background: #111116;
+  border-left: 1px solid #22222b;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.7);
+  animation: drawerSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #1f1f28;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(134, 59, 255, 0.08) 0%, rgba(17, 17, 22, 0) 100%);
+}
+
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #863bff 0%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(134, 59, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.drawer-tag {
+  font-size: 0.68rem;
+  color: #a855f7;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.drawer-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 1px;
+}
+
+.drawer-close {
+  color: #71717a;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.drawer-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drawer-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.drawer-intro {
+  font-size: 0.82rem;
+  color: #a1a1aa;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #1e1e27;
+}
+
+.drawer-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawer-feat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #14141a;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #1f1f29;
+}
+
+.drawer-feat-item strong {
+  font-size: 0.8rem;
+  color: #f4f4f5;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.drawer-feat-item p {
+  font-size: 0.73rem;
+  color: #8e8e99;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.feat-ico {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.feat-zap { color: #eab308; }
+.feat-term { color: #22c55e; }
+.feat-cpu { color: #3b82f6; }
+.feat-shield { color: #a855f7; }
+
+.drawer-cta-card {
+  background: linear-gradient(135deg, rgba(134, 59, 255, 0.12) 0%, rgba(79, 70, 229, 0.08) 100%);
+  border: 1px solid rgba(134, 59, 255, 0.3);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.cta-heading {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.cta-sub {
+  font-size: 0.74rem;
+  color: #a1a1aa;
+  margin-bottom: 12px;
+}
+
+.drawer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-drawer-indus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #673ab7 0%, #4338ca 100%);
+  color: #ffffff;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(103, 58, 183, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-drawer-indus:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.btn-drawer-portal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #272733;
+  color: #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-drawer-portal:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: #3f3f50;
+}
+
+.drawer-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #1f1f28;
+  font-size: 0.68rem;
+  color: #52525b;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .statusbar-app-label {
+    display: none;
+  }
+}

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Editor from './components/Editor';
 import MyTerminal from './Terminal';
 import CustomSelect from './components/CustomSelect';
+import StatusBar from './components/StatusBar';
+import AppDrawer from './components/AppDrawer';
 import { Download, Monitor, Copy, CheckCheck, Play, Square, Terminal as TerminalIcon, ChevronDown, ChevronUp } from 'lucide-react';
 
 const LANGUAGES = [
@@ -120,6 +122,7 @@ function App() {
   const [copyDone, setCopyDone] = useState(false);
   const [stdinValue, setStdinValue] = useState('');
   const [stdinOpen, setStdinOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const rawOutputRef = useRef<string>('');
   const wsRef = useRef<WebSocket | null>(null);
@@ -402,6 +405,19 @@ function App() {
           </div>
         </aside>
       </main>
+
+      {/* ── BOTTOM IDE STATUS BAR ── */}
+      <StatusBar
+        languageName={language.name}
+        languageVersion={language.version}
+        onOpenAppInfo={() => setIsDrawerOpen(true)}
+      />
+
+      {/* ── APP SHOWCASE DRAWER ── */}
+      <AppDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
 }

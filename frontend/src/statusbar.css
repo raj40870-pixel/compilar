@@ -5,13 +5,13 @@
 
 /* ── STATUS BAR ── */
 .ide-statusbar {
-  height: 26px;
+  height: 28px;
   background: #0d0d11;
   border-top: 1px solid #1c1c24;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 14px;
   font-size: 0.72rem;
   color: #71717a;
   user-select: none;
@@ -53,31 +53,50 @@
 .statusbar-app-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(134, 59, 255, 0.08);
-  border: 1px solid rgba(134, 59, 255, 0.25);
-  border-radius: 4px;
-  padding: 2px 8px;
-  color: #d8b4fe;
-  font-size: 0.7rem;
+  gap: 8px;
+  background: rgba(134, 59, 255, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 5px;
+  padding: 2px 10px;
+  color: #e9d5ff;
+  font-size: 0.73rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  height: 20px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 22px;
+  white-space: nowrap;
 }
 
 .statusbar-app-trigger:hover {
-  background: rgba(134, 59, 255, 0.2);
-  border-color: #a855f7;
+  background: rgba(134, 59, 255, 0.25);
+  border-color: #c084fc;
   color: #ffffff;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+  transform: translateY(-1px);
+}
+
+.statusbar-app-trigger strong {
+  color: #ffffff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c084fc, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .statusbar-live-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #22c55e;
   box-shadow: 0 0 6px #22c55e;
+  flex-shrink: 0;
+  animation: pulse-live-dot 1.8s infinite;
+}
+
+@keyframes pulse-live-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
 }
 
 .statusbar-app-badge {
@@ -90,14 +109,15 @@
 }
 
 .statusbar-ext-icon {
-  opacity: 0.7;
+  opacity: 0.75;
+  flex-shrink: 0;
 }
 
 /* ── SLIDE-IN APP DRAWER ── */
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 1000;
@@ -113,7 +133,7 @@
 
 .drawer-panel {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   height: 100%;
   background: #111116;
   border-left: 1px solid #22222b;
@@ -249,16 +269,18 @@
 }
 
 .cta-heading {
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
 .cta-sub {
   font-size: 0.74rem;
   color: #a1a1aa;
   margin-bottom: 12px;
+  line-height: 1.35;
 }
 
 .drawer-actions {
@@ -319,8 +341,9 @@
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 640px) {
-  .statusbar-app-label {
-    display: none;
+@media (max-width: 768px) {
+  .statusbar-app-trigger {
+    font-size: 0.68rem;
+    padding: 2px 7px;
   }
 }

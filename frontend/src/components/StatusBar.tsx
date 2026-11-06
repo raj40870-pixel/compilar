@@ -1,5 +1,5 @@
 import React from 'react';
-import { Smartphone, ExternalLink, Code2 } from 'lucide-react';
+import { ExternalLink, Code2 } from 'lucide-react';
 
 interface StatusBarProps {
   languageName: string;
@@ -31,14 +31,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           type="button"
           onClick={onOpenAppInfo}
           className="statusbar-app-trigger"
-          title="Official Android App by Compiler Team"
+          title="We've officially launched Code Editor on Indus Appstore — Check it out"
         >
           <span className="statusbar-live-dot"></span>
-          <Smartphone size={12} />
           <span className="statusbar-app-label">
-            Official Android App: <strong>Code Editor</strong>
+            Using our Compiler? We&apos;ve officially launched <strong>&quot;Code Editor&quot;</strong> on Indus Appstore — Check it out
           </span>
-          <span className="statusbar-app-badge">🇮🇳 Indus Appstore</span>
           <ExternalLink size={11} className="statusbar-ext-icon" />
         </button>
       </div>

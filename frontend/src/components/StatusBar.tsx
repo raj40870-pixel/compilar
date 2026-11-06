@@ -5,15 +5,17 @@ interface StatusBarProps {
   languageName: string;
   languageVersion: string;
   onOpenAppInfo: () => void;
+  isEditorActive?: boolean;
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
   languageName,
   languageVersion,
   onOpenAppInfo,
+  isEditorActive = false,
 }) => {
   return (
-    <footer className="ide-statusbar">
+    <footer className={`ide-statusbar${isEditorActive ? ' with-keybar' : ''}`}>
       <div className="statusbar-left desktop-only">
         <span className="statusbar-item statusbar-lang">
           <Code2 size={12} />

@@ -357,6 +357,14 @@
 }
 
 @media (max-width: 1024px) {
+  .ide-statusbar.with-keybar {
+    margin-bottom: 46px !important; /* Lifts neatly above the mobile keyboard bar */
+  }
+  .ide-statusbar {
+    z-index: 100 !important;
+    background: #0f0f14 !important;
+    border-top: 1px solid #23232e !important;
+  }
   .desktop-only {
     display: none !important;
   }
@@ -373,7 +381,7 @@
   .statusbar-app-trigger {
     width: 100% !important;
     justify-content: center !important;
-    font-size: 0.7rem !important;
-    padding: 2px 6px !important;
+    font-size: 0.71rem !important;
+    padding: 3px 6px !important;
   }
 }

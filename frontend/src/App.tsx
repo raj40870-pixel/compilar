@@ -416,6 +416,7 @@ function App() {
         languageName={language.name}
         languageVersion={language.version}
         onOpenAppInfo={() => setIsDrawerOpen(true)}
+        isEditorActive={activeTab === 'editor'}
       />
 
       {/* ── APP SHOWCASE DRAWER ── */}

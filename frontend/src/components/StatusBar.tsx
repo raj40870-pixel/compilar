@@ -31,12 +31,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           type="button"
           onClick={onOpenAppInfo}
           className="statusbar-app-trigger"
-          title="TermCode IDE — Compile offline on Android via Indus Appstore"
+          title="Official Android App by Compiler Team"
         >
           <span className="statusbar-live-dot"></span>
           <Smartphone size={12} />
           <span className="statusbar-app-label">
-            Android Edition: <strong>TermCode IDE</strong>
+            Official Android App: <strong>Code Editor</strong>
           </span>
           <span className="statusbar-app-badge">🇮🇳 Indus Appstore</span>
           <ExternalLink size={11} className="statusbar-ext-icon" />

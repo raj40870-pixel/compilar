@@ -32,7 +32,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ isOpen, onClose }) => {
 
         <div className="drawer-body">
           <div className="drawer-intro">
-            Code and compile anywhere, even with zero internet! TermCode IDE brings this exact multi-language compilation environment right onto your Android phone.
+            While you code on our online compiler website, we've officially launched our native Android app — <strong>Code Editor (TermCode IDE)</strong> on PhonePe's Indus Appstore! Compile and run 15+ languages 100% offline directly on your phone.
           </div>
 
           <div className="drawer-features">
@@ -40,7 +40,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ isOpen, onClose }) => {
               <Zap size={16} className="feat-ico feat-zap" />
               <div>
                 <strong>100% Offline Compilation</strong>
-                <p>Run C, C++, Python, Java OpenJDK, Rust, Go & 15+ stacks locally without servers.</p>
+                <p>Run C, C++, Python, Java OpenJDK, Rust, Go & 15+ stacks locally without internet.</p>
               </div>
             </div>
 
@@ -69,9 +69,14 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
+          {/* ── OFFICIAL LAUNCH CARD WITH USER'S CHOSEN TEXT ── */}
           <div className="drawer-cta-card">
-            <div className="cta-heading">Download Directly from Indus Appstore</div>
-            <p className="cta-sub">Published officially on PhonePe's Made-in-India App Store.</p>
+            <div className="cta-heading">
+              Using our Compiler? We've officially launched &quot;Code Editor&quot; on Indus Appstore — Check it out ↗
+            </div>
+            <p className="cta-sub">
+              Built by our team for developers and students. Experience offline mobile compilation directly from India&apos;s Indus Appstore.
+            </p>
             <div className="drawer-actions">
               <a
                 href={INDUS_URL}
@@ -80,7 +85,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ isOpen, onClose }) => {
                 className="btn-drawer-indus"
               >
                 <Smartphone size={16} />
-                <span>Get on Indus Appstore 🇮🇳</span>
+                <span>Visit &amp; Install on Indus Appstore 🇮🇳</span>
                 <ExternalLink size={14} />
               </a>
 
@@ -91,7 +96,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ isOpen, onClose }) => {
                 className="btn-drawer-portal"
               >
                 <ExternalLink size={14} />
-                <span>Setup Guide & Portal</span>
+                <span>Setup Guide &amp; Portal</span>
               </a>
             </div>
           </div>

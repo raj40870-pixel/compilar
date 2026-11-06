@@ -10,3 +10,6 @@ build/
 .DS_Store
 test_execution_log.txt
 *.exe
+.vercel
+Project-1_Dynamic_Pricing_Predictor/
+compiler-backend/

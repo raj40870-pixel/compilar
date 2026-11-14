@@ -21,6 +21,9 @@ const LANGUAGES = [
   { id: 'bash', name: 'Bash', version: '5.2' },
   { id: 'typescript', name: 'TypeScript', version: 'Node 20' },
   { id: 'ruby', name: 'Ruby', version: '3.1' },
+  { id: 'dart', name: 'Dart', version: '3.6' },
+  { id: 'r', name: 'R', version: '4.3' },
+  { id: 'perl', name: 'Perl', version: '5.34' },
 ];
 
 const FILE_NAMES: Record<string, string> = {
@@ -38,13 +41,16 @@ const FILE_NAMES: Record<string, string> = {
   bash: 'main.sh',
   typescript: 'main.ts',
   ruby: 'main.rb',
+  dart: 'main.dart',
+  r: 'main.R',
+  perl: 'main.pl',
 };
 
 const EXT: Record<string, string> = { 
   c: 'c', cpp: 'cpp', csharp: 'cs', go: 'go', java: 'java',
   javascript: 'js', kotlin: 'kt', lua: 'lua', php: 'php',
   python: 'py', rust: 'rs', bash: 'sh', typescript: 'ts',
-  ruby: 'rb'
+  ruby: 'rb', dart: 'dart', r: 'R', perl: 'pl'
 };
 
 const DEFAULT_CODE: Record<string, string> = {
@@ -62,6 +68,9 @@ const DEFAULT_CODE: Record<string, string> = {
   bash: 'echo "Hello World"',
   typescript: 'const message: string = "Hello World";\nconsole.log(message);',
   ruby: 'puts "Hello World"',
+  dart: 'void main() {\n  print("Hello World");\n}',
+  r: 'cat("Hello World\\n")',
+  perl: 'print "Hello World\\n";',
 };
 
 function App() {

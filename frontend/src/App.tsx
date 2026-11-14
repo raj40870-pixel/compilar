@@ -24,6 +24,9 @@ const LANGUAGES = [
   { id: 'dart', name: 'Dart', version: '3.6' },
   { id: 'r', name: 'R', version: '4.3' },
   { id: 'perl', name: 'Perl', version: '5.34' },
+  { id: 'swift', name: 'Swift', version: '5.10' },
+  { id: 'scala', name: 'Scala', version: '2.13' },
+  { id: 'julia', name: 'Julia', version: '1.10' },
 ];
 
 const FILE_NAMES: Record<string, string> = {
@@ -44,13 +47,17 @@ const FILE_NAMES: Record<string, string> = {
   dart: 'main.dart',
   r: 'main.R',
   perl: 'main.pl',
+  swift: 'main.swift',
+  scala: 'main.scala',
+  julia: 'main.jl',
 };
 
 const EXT: Record<string, string> = { 
   c: 'c', cpp: 'cpp', csharp: 'cs', go: 'go', java: 'java',
   javascript: 'js', kotlin: 'kt', lua: 'lua', php: 'php',
   python: 'py', rust: 'rs', bash: 'sh', typescript: 'ts',
-  ruby: 'rb', dart: 'dart', r: 'R', perl: 'pl'
+  ruby: 'rb', dart: 'dart', r: 'R', perl: 'pl',
+  swift: 'swift', scala: 'scala', julia: 'jl'
 };
 
 const DEFAULT_CODE: Record<string, string> = {
@@ -71,6 +78,9 @@ const DEFAULT_CODE: Record<string, string> = {
   dart: 'void main() {\n  print("Hello World");\n}',
   r: 'cat("Hello World\\n")',
   perl: 'print "Hello World\\n";',
+  swift: 'import Foundation\n\nprint("Hello World")',
+  scala: 'object Main extends App {\n  println("Hello World")\n}',
+  julia: 'println("Hello World")',
 };
 
 function App() {

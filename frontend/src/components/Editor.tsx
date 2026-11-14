@@ -37,6 +37,7 @@ const Editor = ({ language, code, onChange }: EditorProps) => {
       c: 'c', cpp: 'cpp', java: 'java', javascript: 'javascript', python: 'python',
       typescript: 'typescript', csharp: 'csharp', go: 'go', php: 'php', rust: 'rust', kotlin: 'kotlin', lua: 'lua', bash: 'shell', sh: 'shell', ruby: 'ruby',
       dart: 'dart', r: 'r', perl: 'perl',
+      swift: 'swift', scala: 'scala', julia: 'julia',
       html: 'html', css: 'css', js: 'javascript'
     };
     return map[lang] ?? 'javascript';
